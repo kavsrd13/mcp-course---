@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise: Use a Remote MCP Server with Azure OpenAI</title>
+  <style>
+    :root{--blue:#2563eb;--navy:#172554;--ink:#25324a;--muted:#5d6b82;--line:#d9e1ec;--soft:#f5f8fc;--tip:#ecfdf5;--warn:#fff7ed;--danger:#fff1f2}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 "Segoe UI",Arial,sans-serif;color:var(--ink)}header{background:var(--navy);color:white;padding:18px 24px}header div,main{max-width:1000px;margin:auto}header div{font-weight:650}
+    main{padding:44px 24px 80px}h1{font-size:2.35rem;line-height:1.15;color:#10214b;margin:0 0 12px}h2{margin-top:50px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#163a78}h3{margin-top:32px;color:#244a86}
+    a{color:#075fc8}.lead{font-size:1.15rem;color:var(--muted)}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 28px}.pill{background:#eaf2ff;color:#164a96;border-radius:999px;padding:6px 12px;font-weight:600}
+    .box{border-left:5px solid var(--blue);background:var(--soft);padding:16px 20px;margin:22px 0}.tip{border-color:#16a36a;background:var(--tip)}.warn{border-color:#f08c2e;background:var(--warn)}.danger{border-color:#db3147;background:var(--danger)}
+    .code{position:relative;margin:18px 0 26px}.label{background:#26364d;color:white;padding:7px 12px;border-radius:7px 7px 0 0;font-size:.85rem}pre{margin:0;background:#111827;color:#e7edf6;padding:18px;overflow:auto;border-radius:0 0 7px 7px;font:14px/1.55 Consolas,monospace}
+    code{font-family:Consolas,monospace}button{position:absolute;right:9px;top:38px;border:1px solid #7890ad;background:white;color:#17345f;border-radius:5px;padding:5px 9px;cursor:pointer}li{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#edf3fb}.summary{background:#eaf2ff;padding:22px;border-radius:10px;margin-top:44px}
+    @media print{header,button{display:none}main{max-width:none;padding:0}.code{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<header><div>MCP Teaching Labs &nbsp; / &nbsp; Exercise 3</div></header>
+<main>
+  <h1>Use a remote MCP server with Azure OpenAI</h1>
+  <p class="lead">Create a Microsoft Foundry resource, deploy a model, expose a local MCP server through a Dev Tunnel, and let an Azure-hosted model call the server.</p>
+  <div class="meta"><span class="pill">Intermediate</span><span class="pill">60-75 minutes</span><span class="pill">Azure + Python</span></div>
+
+  <div class="box warn"><strong>Cost notice:</strong> This exercise creates billable Azure resources. Model availability and quotas vary by region and subscription. Complete the cleanup section when finished.</div>
+
+  <h2>Learning objectives</h2>
+  <ul>
+    <li>Create a Microsoft Foundry project and model deployment.</li>
+    <li>Use the Azure OpenAI v1 endpoint with the OpenAI Python SDK.</li>
+    <li>Run an MCP server with Streamable HTTP and expose it over HTTPS.</li>
+    <li>Attach the remote server as an MCP tool in the Responses API.</li>
+  </ul>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>An Azure subscription with permission to create a resource group, Foundry resource, project, and model deployment.</li>
+    <li>Python 3.10 or later and Visual Studio Code.</li>
+    <li>Windows Package Manager (<code>winget</code>) for installing Microsoft Dev Tunnels.</li>
+  </ul>
+
+  <h2>1. Create a Microsoft Foundry project</h2>
+  <ol>
+    <li>Open <a href="https://ai.azure.com" target="_blank" rel="noreferrer">https://ai.azure.com</a> and sign in with the account connected to your Azure subscription.</li>
+    <li>Select <strong>Create new project</strong>. If the portal first asks you to choose or create a Foundry resource, choose <strong>Create a new resource</strong>.</li>
+    <li>Use values similar to the following. Names must be unique where the portal requires it.</li>
+  </ol>
+  <table><thead><tr><th>Setting</th><th>Suggested classroom value</th></tr></thead><tbody>
+    <tr><td>Project name</td><td><code>mcp-classroom-project</code></td></tr>
+    <tr><td>Foundry resource name</td><td><code>mcp-classroom-&lt;your-initials&gt;</code></td></tr>
+    <tr><td>Subscription</td><td>Your available Azure subscription</td></tr>
+    <tr><td>Resource group</td><td>Create <code>rg-mcp-classroom</code></td></tr>
+    <tr><td>Region</td><td>A region that offers the model and has quota for your subscription</td></tr>
+  </tbody></table>
+  <ol start="4">
+    <li>Select <strong>Create</strong> and wait for the project to open.</li>
+    <li>Keep the project page open. Portal labels can differ slightly between Foundry updates; use <strong>Build</strong>, <strong>Models</strong>, or <strong>Models + endpoints</strong> when following the next section.</li>
+  </ol>
+
+  <h2>2. Deploy a GPT-4.1 model</h2>
+  <ol>
+    <li>In the Foundry project, open <strong>Models</strong> or <strong>Models + endpoints</strong>.</li>
+    <li>Select <strong>Deploy model</strong> and then <strong>Deploy base model</strong>.</li>
+    <li>Search for <code>gpt-4.1</code>, select it, and choose <strong>Confirm</strong>.</li>
+    <li>Set the deployment name to <code>gpt-4.1</code>. For a classroom exercise, accept the available standard deployment type and default capacity.</li>
+    <li>Select <strong>Deploy</strong> and wait until provisioning succeeds.</li>
+  </ol>
+  <div class="box tip"><strong>If GPT-4.1 is unavailable:</strong> choose another Responses API model that supports remote MCP tools in your region. Record the exact deployment name and use it later for <code>AZURE_OPENAI_DEPLOYMENT</code>.</div>
+  <div class="box"><strong>Important:</strong> Azure API calls use the <em>deployment name</em> in the <code>model</code> field, even when the deployment name and catalog model name happen to be identical.</div>
+
+  <h2>3. Find the endpoint and key</h2>
+  <ol>
+    <li>Open the Foundry resource in the <a href="https://portal.azure.com" target="_blank" rel="noreferrer">Azure portal</a>. You can usually reach it from the project overview or resource details.</li>
+    <li>Under <strong>Resource Management</strong>, open <strong>Keys and Endpoint</strong>.</li>
+    <li>Copy one key and the Azure OpenAI-compatible endpoint. Do not paste the key into a source file.</li>
+    <li>Build the base URL by appending <code>/openai/v1/</code> to the resource endpoint.</li>
+  </ol>
+  <table><thead><tr><th>Portal value</th><th>Environment value example</th></tr></thead><tbody>
+    <tr><td>Key 1 or Key 2</td><td><code>AZURE_OPENAI_API_KEY=your-secret-key</code></td></tr>
+    <tr><td><code>https://NAME.services.ai.azure.com</code></td><td><code>https://NAME.services.ai.azure.com/openai/v1/</code></td></tr>
+    <tr><td><code>https://NAME.openai.azure.com</code></td><td><code>https://NAME.openai.azure.com/openai/v1/</code></td></tr>
+  </tbody></table>
+
+  <h2>4. Create the local project</h2>
+  <p>Open a new VS Code window and run:</p>
+  <div class="code"><div class="label">PowerShell</div><button>Copy</button><pre><code>mkdir azure-agent-with-mcp
+cd azure-agent-with-mcp
+code .
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install "mcp[cli]" openai</code></pre></div>
+  <div class="box tip"><strong>Activation issue:</strong> Run <code>Set-ExecutionPolicy -Scope Process Bypass</code> if PowerShell blocks the activation script.</div>
+
+  <h2>5. Create the remote MCP server</h2>
+  <p>Create <code>server.py</code> and paste this code:</p>
+  <div class="code"><div class="label">server.py</div><button>Copy</button><pre><code>from datetime import datetime, timezone
+
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("classroom-remote-mcp", host="0.0.0.0", port=8000)
+
+
+@mcp.tool()
+def get_course(topic: str) -> dict:
+    """Return a tiny course recommendation for a topic."""
+    return {
+        "topic": topic,
+        "title": f"Introduction to {topic}",
+        "duration_minutes": 20,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+if __name__ == "__main__":
+    mcp.run(transport="streamable-http")</code></pre></div>
+  <p>This server listens on port <code>8000</code> and exposes its Streamable HTTP endpoint at <code>/mcp</code>.</p>
+
+  <h2>6. Create the Azure OpenAI agent script</h2>
+  <p>Create <code>agent.py</code> and paste:</p>
+  <div class="code"><div class="label">agent.py</div><button>Copy</button><pre><code>import os
+
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.environ["AZURE_OPENAI_API_KEY"],
+    base_url=os.environ["AZURE_OPENAI_BASE_URL"],
+)
+
+response = client.responses.create(
+    model=os.environ["AZURE_OPENAI_DEPLOYMENT"],
+    input="Suggest a short course for learning MCP. Use the course server.",
+    tools=[
+        {
+            "type": "mcp",
+            "server_label": "classroom_courses",
+            "server_url": os.environ["MCP_SERVER_URL"],
+            "require_approval": "never",
+        }
+    ],
+)
+
+print(response.output_text)</code></pre></div>
+  <div class="box"><strong>Data flow:</strong> Your script calls Azure OpenAI. Azure connects to the public MCP URL, discovers <code>get_course</code>, lets the model call it, and returns the model's final answer.</div>
+
+  <h2>7. Start the MCP server</h2>
+  <p>In the first VS Code terminal, run:</p>
+  <div class="code"><div class="label">Terminal 1 - PowerShell</div><button>Copy</button><pre><code>.\.venv\Scripts\Activate.ps1
+python server.py</code></pre></div>
+  <p>Leave this terminal running. The local endpoint is <code>http://localhost:8000/mcp</code>.</p>
+
+  <h2>8. Expose the server with Microsoft Dev Tunnel</h2>
+  <p>Azure cannot connect to your laptop's <code>localhost</code>. Open a second terminal and install Dev Tunnels if needed:</p>
+  <div class="code"><div class="label">Terminal 2 - PowerShell</div><button>Copy</button><pre><code>winget install Microsoft.devtunnel
+devtunnel user login</code></pre></div>
+  <p>Restart the terminal if <code>devtunnel</code> is not found after installation. Then host a temporary public tunnel:</p>
+  <div class="code"><div class="label">Terminal 2 - PowerShell</div><button>Copy</button><pre><code>devtunnel host -p 8000 --allow-anonymous</code></pre></div>
+  <p>Copy the HTTPS URL shown by the command, for example:</p>
+  <div class="code"><div class="label">Example output</div><button>Copy</button><pre><code>https://abc123-8000.region.devtunnels.ms</code></pre></div>
+  <p>Your MCP server URL is that value plus <code>/mcp</code>:</p>
+  <div class="code"><div class="label">MCP_SERVER_URL example</div><button>Copy</button><pre><code>https://abc123-8000.region.devtunnels.ms/mcp</code></pre></div>
+  <div class="box danger"><strong>Classroom-only setting:</strong> <code>--allow-anonymous</code> makes the tunnel reachable without signing in. Do not expose private data or production tools. Press <code>Ctrl+C</code> as soon as the exercise is complete.</div>
+
+  <h2>9. Configure credentials in VS Code</h2>
+  <p>Open a third terminal. Set the four environment variables using your own values:</p>
+  <div class="code"><div class="label">Terminal 3 - PowerShell</div><button>Copy</button><pre><code>.\.venv\Scripts\Activate.ps1
+$env:AZURE_OPENAI_API_KEY="PASTE-YOUR-KEY"
+$env:AZURE_OPENAI_BASE_URL="https://YOUR-RESOURCE.services.ai.azure.com/openai/v1/"
+$env:AZURE_OPENAI_DEPLOYMENT="gpt-4.1"
+$env:MCP_SERVER_URL="https://YOUR-DEV-TUNNEL-URL/mcp"</code></pre></div>
+  <div class="box warn"><strong>Check carefully:</strong> The base URL ends in <code>/openai/v1/</code>. The MCP URL ends in <code>/mcp</code>. The deployment variable is the deployment name, not necessarily the catalog model name.</div>
+
+  <h2>10. Run the agent</h2>
+  <div class="code"><div class="label">Terminal 3 - PowerShell</div><button>Copy</button><pre><code>python agent.py</code></pre></div>
+  <div class="box"><strong>Expected output:</strong> A short recommendation such as “Introduction to MCP,” including the 20-minute duration returned by <code>get_course</code>.</div>
+  <p>Watch Terminal 1 while the request runs. The server should receive initialization, discovery, and tool-call traffic from the Azure service through the tunnel.</p>
+
+  <h2>Troubleshooting</h2>
+  <table><thead><tr><th>Symptom</th><th>Likely fix</th></tr></thead><tbody>
+    <tr><td>401 or authentication error</td><td>Copy the key again and confirm it belongs to the same resource used in the base URL.</td></tr>
+    <tr><td>404 from Azure OpenAI</td><td>Confirm the base URL contains <code>/openai/v1/</code> and the deployment name is exact.</td></tr>
+    <tr><td>Model deployment not found</td><td>Use the deployment name shown under Models + endpoints, not just the model family name.</td></tr>
+    <tr><td>Azure cannot reach MCP server</td><td>Keep both server and Dev Tunnel terminals running; verify the public URL ends in <code>/mcp</code>.</td></tr>
+    <tr><td>MCP tool unsupported</td><td>Use a model/region that supports remote MCP tools with the Responses API.</td></tr>
+    <tr><td>Environment variable missing</td><td>Set variables in the same terminal where you run <code>python agent.py</code>.</td></tr>
+  </tbody></table>
+
+  <h2>Cleanup</h2>
+  <ol>
+    <li>Press <code>Ctrl+C</code> in the agent server and Dev Tunnel terminals.</li>
+    <li>In the Azure portal, open resource group <code>rg-mcp-classroom</code>.</li>
+    <li>Select <strong>Delete resource group</strong>, enter its name to confirm, and complete deletion.</li>
+    <li>Run <code>deactivate</code> in local Python terminals.</li>
+  </ol>
+  <div class="summary"><strong>Summary</strong><br>You connected an Azure-hosted model to a local MCP server through a public HTTPS endpoint and used the OpenAI Responses API to let the model discover and invoke an MCP tool.</div>
+</main>
+<script>async function copyText(t){if(navigator.clipboard){try{await navigator.clipboard.writeText(t);return}catch{}}const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}document.querySelectorAll("button").forEach(b=>b.onclick=async()=>{await copyText(b.nextElementSibling.innerText);b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)});</script>
+</body>
+</html>

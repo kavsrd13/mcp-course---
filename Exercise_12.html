@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise: Build MCP Apps Widgets</title>
+  <style>
+    :root{--blue:#2563eb;--navy:#172554;--ink:#25324a;--muted:#5d6b82;--line:#d9e1ec;--soft:#f5f8fc;--tip:#ecfdf5;--warn:#fff7ed}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 "Segoe UI",Arial,sans-serif;color:var(--ink)}header{background:var(--navy);color:white;padding:18px 24px}header div,main{max-width:1040px;margin:auto}header div{font-weight:650}
+    main{padding:44px 24px 80px}h1{font-size:2.35rem;line-height:1.15;color:#10214b;margin:0 0 12px}h2{margin-top:50px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#163a78}h3{margin-top:32px;color:#244a86}
+    a{color:#075fc8}.lead{font-size:1.15rem;color:var(--muted)}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 28px}.pill{background:#eaf2ff;color:#164a96;border-radius:999px;padding:6px 12px;font-weight:600}
+    .box{border-left:5px solid var(--blue);background:var(--soft);padding:16px 20px;margin:22px 0}.tip{border-color:#16a36a;background:var(--tip)}.warn{border-color:#f08c2e;background:var(--warn)}
+    .code{position:relative;margin:18px 0 26px}.label{background:#26364d;color:white;padding:7px 12px;border-radius:7px 7px 0 0;font-size:.85rem}pre{margin:0;background:#111827;color:#e7edf6;padding:18px;overflow:auto;border-radius:0 0 7px 7px;font:14px/1.55 Consolas,monospace}
+    code{font-family:Consolas,monospace}button{position:absolute;right:9px;top:38px;border:1px solid #7890ad;background:white;color:#17345f;border-radius:5px;padding:5px 9px;cursor:pointer}li{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#edf3fb}.summary{background:#eaf2ff;padding:22px;border-radius:10px;margin-top:44px}
+    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:25px 0}.flow div{background:#edf3fb;border:1px solid #bfd0e8;border-radius:8px;padding:14px;text-align:center;font-weight:600}
+    @media(max-width:720px){.flow{grid-template-columns:1fr 1fr}}@media print{header,button{display:none}main{max-width:none;padding:0}.code{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<header><div>MCP Teaching Labs &nbsp; / &nbsp; Exercise 4</div></header>
+<main>
+  <h1>Build weather, time, and calendar MCP Apps widgets</h1>
+  <p class="lead">Create an MCP server whose tools can launch an interactive HTML interface inside an MCP Apps-compatible host.</p>
+  <div class="meta"><span class="pill">Intermediate</span><span class="pill">60 minutes</span><span class="pill">TypeScript + MCP Apps</span></div>
+
+  <h2>Learning objectives</h2>
+  <ul>
+    <li>Register app tools and a <code>ui://</code> resource.</li>
+    <li>Return structured tool data for a widget to render.</li>
+    <li>Build one self-contained widget that displays time, calendar, or free Open-Meteo weather data.</li>
+    <li>Connect the server to an MCP Apps-compatible host.</li>
+  </ul>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li><a href="https://nodejs.org/" target="_blank" rel="noreferrer">Node.js LTS</a> and npm.</li>
+    <li><a href="https://git-scm.com/downloads" target="_blank" rel="noreferrer">Git</a>.</li>
+    <li>Visual Studio Code and internet access for npm and the Open-Meteo API.</li>
+  </ul>
+  <div class="box tip"><strong>Why TypeScript?</strong> The MCP Apps extension includes browser-side APIs. The server uses TypeScript, while the widget is ordinary HTML, CSS, and browser JavaScript.</div>
+
+  <h2>Understand the MCP Apps flow</h2>
+  <div class="flow"><div>1. User asks</div><div>2. Tool runs</div><div>3. Host loads ui:// resource</div><div>4. Widget renders result</div></div>
+  <p>The tool still returns normal text and structured data. Its metadata points to a UI resource. A compatible host loads the resource in an iframe and sends the tool result to the widget.</p>
+
+  <h2>1. Create the project</h2>
+  <div class="code"><div class="label">PowerShell</div><button>Copy</button><pre><code>mkdir mcp-apps-widgets
+cd mcp-apps-widgets
+code .</code></pre></div>
+
+  <h2>2. Create package.json</h2>
+  <p>Create <code>package.json</code> and paste:</p>
+  <div class="code"><div class="label">package.json</div><button>Copy</button><pre><code>{
+  "name": "mcp-apps-widget-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build --configLoader runner --config vite.config.mjs",
+    "start": "npm run build &amp;&amp; tsx server.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/ext-apps": "^1.7.4",
+    "@modelcontextprotocol/sdk": "^1.20.0",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.8.0",
+    "vite": "^7.0.0",
+    "vite-plugin-singlefile": "^2.3.0"
+  }
+}</code></pre></div>
+  <p>Install the packages:</p>
+  <div class="code"><div class="label">PowerShell</div><button>Copy</button><pre><code>npm install</code></pre></div>
+
+  <h2>3. Add TypeScript and Vite configuration</h2>
+  <p>Create <code>tsconfig.json</code>:</p>
+  <div class="code"><div class="label">tsconfig.json</div><button>Copy</button><pre><code>{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": ["server.ts", "widget.ts"]
+}</code></pre></div>
+  <p>Create <code>vite.config.mjs</code>:</p>
+  <div class="code"><div class="label">vite.config.mjs</div><button>Copy</button><pre><code>import { defineConfig } from "vite";
+import { viteSingleFile } from "vite-plugin-singlefile";
+
+export default defineConfig({
+  plugins: [viteSingleFile()],
+  build: {
+    rollupOptions: { input: "widget.html" },
+    outDir: "dist",
+  },
+});</code></pre></div>
+  <p>Vite bundles the widget and its JavaScript into one HTML file. The MCP server will return that file as the UI resource.</p>
+
+  <h2>4. Create the widget page</h2>
+  <p>Create <code>widget.html</code>:</p>
+  <div class="code"><div class="label">widget.html</div><button>Copy</button><pre><code>&lt;!doctype html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;meta charset="UTF-8" /&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;
+    &lt;title&gt;Classroom Widget&lt;/title&gt;
+    &lt;style&gt;
+      body { margin: 0; padding: 16px; font: 16px system-ui; background: #eef4ff; color: #17213a; }
+      main { max-width: 420px; padding: 20px; border-radius: 18px; background: white; box-shadow: 0 8px 30px #19376922; }
+      h2 { margin: 0 0 12px; color: #3157d5; }
+      .value { font-size: 36px; font-weight: 750; }
+      .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+      .day { padding: 7px 2px; border-radius: 8px; text-align: center; background: #eef4ff; }
+    &lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;main id="widget"&gt;Waiting for tool data...&lt;/main&gt;
+    &lt;script type="module" src="/widget.ts"&gt;&lt;/script&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+
+  <h2>5. Create the widget logic</h2>
+  <p>Create <code>widget.ts</code>:</p>
+  <div class="code"><div class="label">widget.ts</div><button>Copy</button><pre><code>import { App } from "@modelcontextprotocol/ext-apps";
+
+const root = document.querySelector&lt;HTMLElement&gt;("#widget")!;
+const app = new App({ name: "Classroom Widgets", version: "1.0.0" });
+
+app.ontoolresult = (result) =&gt; {
+  const data = result.structuredContent as any;
+  if (!data) return;
+
+  if (data.widget === "time") {
+    root.innerHTML = `&lt;h2&gt;${data.title}&lt;/h2&gt;&lt;div class="value"&gt;${data.value}&lt;/div&gt;`;
+  }
+
+  if (data.widget === "weather") {
+    root.innerHTML = `
+      &lt;h2&gt;${data.title}&lt;/h2&gt;
+      &lt;div class="value"&gt;${data.temperature} C&lt;/div&gt;
+      &lt;p&gt;Wind: ${data.wind} km/h&lt;/p&gt;`;
+  }
+
+  if (data.widget === "calendar") {
+    const count = new Date(data.year, data.month, 0).getDate();
+    const start = new Date(data.year, data.month - 1, 1).getDay();
+    const cells = [
+      ...Array(start).fill(""),
+      ...Array.from({ length: count }, (_, i) =&gt; i + 1),
+    ];
+    root.innerHTML = `
+      &lt;h2&gt;${data.title}&lt;/h2&gt;
+      &lt;div class="days"&gt;${cells.map((day) =&gt; `&lt;div class="day"&gt;${day}&lt;/div&gt;`).join("")}&lt;/div&gt;`;
+  }
+};
+
+app.connect();</code></pre></div>
+  <p><code>app.connect()</code> connects the iframe to the host. The <code>ontoolresult</code> handler receives the structured content returned by whichever tool was called.</p>
+
+  <h2>6. Create the MCP Apps server</h2>
+  <p>Create <code>server.ts</code>:</p>
+  <div class="code"><div class="label">server.ts</div><button>Copy</button><pre><code>import {
+  registerAppResource,
+  registerAppTool,
+  RESOURCE_MIME_TYPE,
+} from "@modelcontextprotocol/ext-apps/server";
+import { createMcpExpressApp } from "@modelcontextprotocol/sdk/server/express.js";
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import cors from "cors";
+import fs from "node:fs/promises";
+import path from "node:path";
+import { z } from "zod";
+
+const resourceUri = "ui://classroom/widgets.html";
+
+function createServer() {
+  const server = new McpServer({ name: "classroom-widgets", version: "1.0.0" });
+
+  const ui = { _meta: { ui: { resourceUri } } };
+
+  registerAppTool(server, "show_time", {
+    title: "Show Time",
+    description: "Show the current time for a UTC offset such as +05:30.",
+    inputSchema: { utcOffset: z.string().default("+00:00") },
+    ...ui,
+  }, async ({ utcOffset }) =&gt; ({
+    structuredContent: {
+      widget: "time",
+      title: `Time at UTC${utcOffset}`,
+      value: timeAtOffset(utcOffset),
+    },
+    content: [{ type: "text", text: `Current time for UTC${utcOffset}` }],
+  }));
+
+  registerAppTool(server, "show_calendar", {
+    title: "Show Calendar",
+    description: "Show a simple calendar for a month.",
+    inputSchema: {
+      year: z.number().int().min(2000).max(2100),
+      month: z.number().int().min(1).max(12),
+    },
+    ...ui,
+  }, async ({ year, month }) =&gt; ({
+    structuredContent: {
+      widget: "calendar",
+      title: new Date(year, month - 1).toLocaleString("en", {
+        month: "long",
+        year: "numeric",
+      }),
+      year,
+      month,
+    },
+    content: [{ type: "text", text: `Calendar for ${year}-${month}` }],
+  }));
+
+  registerAppTool(server, "show_weather", {
+    title: "Show Weather",
+    description: "Show current weather for a city using the free Open-Meteo API.",
+    inputSchema: { city: z.string().default("Bengaluru") },
+    ...ui,
+  }, async ({ city }) =&gt; {
+    const place = await fetch(
+      `https://geocoding-api.open-meteo.com/v1/search?count=1&amp;name=${encodeURIComponent(city)}`,
+    ).then((response) =&gt; response.json()) as any;
+    const location = place.results?.[0];
+    if (!location) {
+      return { content: [{ type: "text", text: `City not found: ${city}` }], isError: true };
+    }
+
+    const weather = await fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${location.latitude}&amp;longitude=${location.longitude}&amp;current=temperature_2m,wind_speed_10m`,
+    ).then((response) =&gt; response.json()) as any;
+
+    return {
+      structuredContent: {
+        widget: "weather",
+        title: location.name,
+        temperature: weather.current.temperature_2m,
+        wind: weather.current.wind_speed_10m,
+      },
+      content: [{ type: "text", text: `Current weather in ${location.name}` }],
+    };
+  });
+
+  registerAppResource(
+    server,
+    resourceUri,
+    resourceUri,
+    { mimeType: RESOURCE_MIME_TYPE },
+    async () =&gt; ({
+      contents: [{
+        uri: resourceUri,
+        mimeType: RESOURCE_MIME_TYPE,
+        text: await fs.readFile(path.join(import.meta.dirname, "dist", "widget.html"), "utf8"),
+      }],
+    }),
+  );
+
+  return server;
+}
+
+function timeAtOffset(offset: string) {
+  const match = offset.match(/^([+-])(\d{2}):(\d{2})$/);
+  if (!match) return "Invalid UTC offset";
+
+  const direction = match[1] === "+" ? 1 : -1;
+  const minutes = direction * (Number(match[2]) * 60 + Number(match[3]));
+  return new Date(Date.now() + minutes * 60_000).toLocaleTimeString("en-US", {
+    timeZone: "UTC",
+  });
+}
+
+const app = createMcpExpressApp({ host: "0.0.0.0" });
+app.use(cors());
+app.all("/mcp", async (req, res) =&gt; {
+  const server = createServer();
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+  await server.connect(transport);
+  await transport.handleRequest(req, res, req.body);
+});
+
+app.listen(3001, () =&gt; {
+  console.log("MCP Apps server: http://localhost:3001/mcp");
+});</code></pre></div>
+
+  <h3>Identify the important parts</h3>
+  <ul>
+    <li>Every app tool includes metadata that points to <code>ui://classroom/widgets.html</code>.</li>
+    <li><code>structuredContent</code> is intended for the widget; <code>content</code> remains useful to the model and non-UI clients.</li>
+    <li><code>registerAppResource</code> returns the built widget with the MCP Apps resource MIME type.</li>
+    <li>The weather tool first geocodes the city, then requests current conditions from the free Open-Meteo API.</li>
+  </ul>
+
+  <h2>7. Type-check, build, and run</h2>
+  <div class="code"><div class="label">PowerShell</div><button>Copy</button><pre><code>npx tsc --noEmit
+npm run build
+npm start</code></pre></div>
+  <p>Keep the process running. The server should print:</p>
+  <div class="code"><div class="label">Expected output</div><button>Copy</button><pre><code>MCP Apps server: http://localhost:3001/mcp</code></pre></div>
+  <div class="box warn"><strong>Development warning:</strong> The sample binds to <code>0.0.0.0</code> and enables CORS for easy classroom use. It intentionally omits production authentication and host restrictions.</div>
+
+  <h2>8. Run an MCP Apps-compatible host</h2>
+  <p>Open another VS Code window or terminal and clone the official MCP Apps examples:</p>
+  <div class="code"><div class="label">Second PowerShell terminal</div><button>Copy</button><pre><code>git clone https://github.com/modelcontextprotocol/ext-apps.git
+cd ext-apps
+npm install
+npm start</code></pre></div>
+  <ol>
+    <li>Open the host URL printed by the project, commonly <code>http://localhost:8080</code>.</li>
+    <li>Add or connect the MCP server URL <code>http://localhost:3001/mcp</code>.</li>
+    <li>Confirm that the host discovers <code>show_time</code>, <code>show_weather</code>, and <code>show_calendar</code>.</li>
+  </ol>
+  <div class="box tip"><strong>Host UI differences:</strong> The example host evolves with the SDK. Look for a server URL, connect, or add-server control and supply the full <code>/mcp</code> endpoint.</div>
+
+  <h2>9. Test each widget</h2>
+  <table><thead><tr><th>Prompt or tool input</th><th>Expected widget</th></tr></thead><tbody>
+    <tr><td>“Show the time at UTC+05:30.”</td><td>A large current time value with an India-compatible half-hour offset.</td></tr>
+    <tr><td>“Show the weather in Bengaluru.”</td><td>City, current temperature in Celsius, and wind speed.</td></tr>
+    <tr><td>“Show a calendar for June 2026.”</td><td>A grid containing the days of June 2026.</td></tr>
+  </tbody></table>
+  <p>Also try an unknown city. The weather tool should return an error result instead of a widget payload.</p>
+
+  <h2>Troubleshooting</h2>
+  <table><thead><tr><th>Problem</th><th>Check</th></tr></thead><tbody>
+    <tr><td>Widget resource cannot be read</td><td>Run <code>npm run build</code> and confirm <code>dist/widget.html</code> exists.</td></tr>
+    <tr><td>Server URL does not connect</td><td>Use <code>http://localhost:3001/mcp</code>, not only port 3001.</td></tr>
+    <tr><td>Weather request fails</td><td>Check internet access and try a well-known city name.</td></tr>
+    <tr><td>PowerShell blocks npm.ps1</td><td>Use <code>npm.cmd install</code> and <code>npm.cmd start</code>, or allow scripts for the current process.</td></tr>
+    <tr><td>Host shows text but no widget</td><td>Confirm the chosen host implements MCP Apps and supports <code>ui://</code> resources.</td></tr>
+  </tbody></table>
+
+  <h2>Cleanup</h2>
+  <ol><li>Press <code>Ctrl+C</code> in the widget server terminal.</li><li>Press <code>Ctrl+C</code> in the example host terminal.</li><li>No cloud resources were created in this exercise.</li></ol>
+  <div class="summary"><strong>Summary</strong><br>You built an MCP Apps server where tools return structured data and reference a reusable UI resource. One widget rendered three different experiences: time, live weather, and a calendar.</div>
+</main>
+<script>async function copyText(t){if(navigator.clipboard){try{await navigator.clipboard.writeText(t);return}catch{}}const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}document.querySelectorAll("button").forEach(b=>b.onclick=async()=>{await copyText(b.nextElementSibling.innerText);b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)});</script>
+</body>
+</html>

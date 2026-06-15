@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise: Test an MCP Server with Inspector</title>
+  <style>
+    :root{--blue:#2563eb;--navy:#172554;--ink:#25324a;--muted:#5d6b82;--line:#d9e1ec;--soft:#f5f8fc;--tip:#ecfdf5;--warn:#fff7ed}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 "Segoe UI",Arial,sans-serif;color:var(--ink)}header{background:var(--navy);color:white;padding:18px 24px}header div,main{max-width:980px;margin:auto}header div{font-weight:650}
+    main{padding:44px 24px 80px}h1{font-size:2.35rem;line-height:1.15;color:#10214b;margin:0 0 12px}h2{margin-top:48px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#163a78}h3{margin-top:30px;color:#244a86}
+    a{color:#075fc8}.lead{font-size:1.15rem;color:var(--muted)}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 28px}.pill{background:#eaf2ff;color:#164a96;border-radius:999px;padding:6px 12px;font-weight:600}
+    .box{border-left:5px solid var(--blue);background:var(--soft);padding:16px 20px;margin:22px 0}.tip{border-color:#16a36a;background:var(--tip)}.warn{border-color:#f08c2e;background:var(--warn)}
+    .code{position:relative;margin:18px 0 26px}.label{background:#26364d;color:white;padding:7px 12px;border-radius:7px 7px 0 0;font-size:.85rem}pre{margin:0;background:#111827;color:#e7edf6;padding:18px;overflow:auto;border-radius:0 0 7px 7px;font:14px/1.55 Consolas,monospace}
+    code{font-family:Consolas,monospace}button{position:absolute;right:9px;top:38px;border:1px solid #7890ad;background:white;color:#17345f;border-radius:5px;padding:5px 9px;cursor:pointer}li{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left}th{background:#edf3fb}.summary{background:#eaf2ff;padding:22px;border-radius:10px;margin-top:44px}
+    @media print{header,button{display:none}main{max-width:none;padding:0}.code{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<header><div>MCP Teaching Labs &nbsp; / &nbsp; Exercise 2</div></header>
+<main>
+  <h1>Test an MCP server with MCP Inspector</h1>
+  <p class="lead">Use the protocol-focused Inspector to examine schemas, invoke capabilities, and observe how an MCP client communicates with a server.</p>
+  <div class="meta"><span class="pill">Beginner</span><span class="pill">30 minutes</span><span class="pill">MCP Inspector</span></div>
+
+  <h2>Learning objectives</h2>
+  <ul><li>Launch a stdio MCP server from Inspector.</li><li>Test valid and invalid tool input.</li><li>Read resources, retrieve prompts, and inspect protocol activity.</li></ul>
+
+  <h2>Prerequisites</h2>
+  <ul><li>Python 3.10 or later.</li><li>Node.js and npm.</li><li>Visual Studio Code with a PowerShell terminal.</li></ul>
+
+  <h2>1. Prepare the project</h2>
+  <div class="code"><div class="label">PowerShell</div><button>Copy</button><pre><code>mkdir mcp-inspector-lab
+cd mcp-inspector-lab
+code .
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install "mcp[cli]"</code></pre></div>
+  <div class="box tip"><strong>Tip:</strong> If PowerShell blocks activation, run <code>Set-ExecutionPolicy -Scope Process Bypass</code> first.</div>
+
+  <h2>2. Create a server designed for testing</h2>
+  <p>Create <code>server.py</code>, paste the code, and save it.</p>
+  <div class="code"><div class="label">server.py</div><button>Copy</button><pre><code>from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("inspector-lab")
+
+
+@mcp.tool()
+def grade(score: int, total: int = 100) -> dict:
+    """Return a percentage and a simple pass/fail result."""
+    if total &lt;= 0:
+        return {"error": "total must be greater than zero"}
+
+    percentage = round(score / total * 100, 1)
+    return {"percentage": percentage, "passed": percentage &gt;= 40}
+
+
+@mcp.resource("classroom://rules")
+def classroom_rules() -> str:
+    """Return sample classroom rules."""
+    return "1. Ask questions\n2. Try the tool\n3. Explain what happened"
+
+
+@mcp.prompt()
+def quiz_question(subject: str, level: str = "beginner") -> str:
+    """Create a prompt for generating one quiz question."""
+    return (
+        f"Create one {level} multiple-choice question about {subject}. "
+        "Include four choices and identify the correct answer."
+    )
+
+
+if __name__ == "__main__":
+    mcp.run()</code></pre></div>
+
+  <h2>3. Start Inspector</h2>
+  <div class="code"><div class="label">PowerShell</div><button>Copy</button><pre><code>npx @modelcontextprotocol/inspector python server.py</code></pre></div>
+  <ol>
+    <li>Open the URL shown in the terminal. Inspector normally opens it automatically.</li>
+    <li>Use <strong>STDIO</strong> as the transport.</li>
+    <li>Confirm command <code>python</code> and argument <code>server.py</code>, and select <strong>Connect</strong>.</li>
+    <li>Observe the server name and the capabilities returned during initialization.</li>
+  </ol>
+  <div class="box"><strong>Concept:</strong> Before calling anything, an MCP client initializes the connection and asks what the server supports. Inspector turns those capability lists into tabs and forms.</div>
+
+  <h2>4. Test the tool schema</h2>
+  <ol>
+    <li>Open <strong>Tools</strong> and select <code>grade</code>.</li>
+    <li>Notice that <code>score</code> is required and <code>total</code> has a default. These fields were generated from the Python function signature.</li>
+    <li>Run each case below and compare the result.</li>
+  </ol>
+  <table><thead><tr><th>Score</th><th>Total</th><th>Expected result</th></tr></thead><tbody>
+    <tr><td>75</td><td>100</td><td><code>{"percentage":75.0,"passed":true}</code></td></tr>
+    <tr><td>20</td><td>50</td><td>40%, passed</td></tr>
+    <tr><td>20</td><td>0</td><td>Error object from the function</td></tr>
+  </tbody></table>
+  <div class="box warn"><strong>Teaching point:</strong> Returning an error object is application behavior. Passing the wrong JSON type, such as text for <code>score</code>, is schema validation behavior and may be rejected before the function runs.</div>
+
+  <h2>5. Test the resource and prompt</h2>
+  <ol>
+    <li>Open <strong>Resources</strong>, select <code>classroom://rules</code>, and choose <strong>Read Resource</strong>.</li>
+    <li>Confirm that the result is plain text containing three rules.</li>
+    <li>Open <strong>Prompts</strong> and select <code>quiz_question</code>.</li>
+    <li>Set subject to <code>Model Context Protocol</code> and level to <code>beginner</code>.</li>
+    <li>Retrieve the prompt and inspect the generated message.</li>
+  </ol>
+  <p>A resource supplies context. A prompt supplies reusable instructions. Neither one is automatically an action.</p>
+
+  <h2>6. Observe protocol activity</h2>
+  <ol>
+    <li>Repeat a tool call and watch Inspector's message or notification area.</li>
+    <li>Identify requests such as capability listing and tool invocation.</li>
+    <li>Disconnect and reconnect. Notice that capability discovery happens again for the new session.</li>
+  </ol>
+  <div class="box tip"><strong>Optional experiment:</strong> Rename <code>grade</code> to <code>calculate_grade</code>, save the file, reconnect, and confirm that the published tool name changes.</div>
+
+  <h2>Troubleshooting</h2>
+  <table><thead><tr><th>Problem</th><th>Check</th></tr></thead><tbody>
+    <tr><td><code>python</code> not found</td><td>Install Python and restart VS Code, or use <code>py</code> as the command.</td></tr>
+    <tr><td><code>npx</code> not found</td><td>Install Node.js LTS and restart the terminal.</td></tr>
+    <tr><td>Server disconnects immediately</td><td>Run <code>python server.py</code> directly to reveal import or syntax errors.</td></tr>
+    <tr><td>Changes do not appear</td><td>Disconnect and reconnect so Inspector starts a fresh server process.</td></tr>
+  </tbody></table>
+
+  <h2>Cleanup</h2>
+  <p>Press <code>Ctrl+C</code> to stop Inspector, then run <code>deactivate</code>.</p>
+  <div class="summary"><strong>Summary</strong><br>You used Inspector to test discovery, schemas, tool calls, resources, prompts, errors, and the MCP connection lifecycle without building an LLM agent.</div>
+</main>
+<script>async function copyText(t){if(navigator.clipboard){try{await navigator.clipboard.writeText(t);return}catch{}}const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}document.querySelectorAll("button").forEach(b=>b.onclick=async()=>{await copyText(b.nextElementSibling.innerText);b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)});</script>
+</body>
+</html>
