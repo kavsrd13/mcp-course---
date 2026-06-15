@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise: Advanced RAG Demo</title>
+  <style>
+    :root{--blue:#2563eb;--navy:#172554;--ink:#25324a;--muted:#5d6b82;--line:#d9e1ec;--soft:#f5f8fc;--tip:#ecfdf5;--warn:#fff7ed;--danger:#fff1f2;--hf:#ffbd19}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 "Segoe UI",Arial,sans-serif;color:var(--ink)}header{background:var(--navy);color:#fff;padding:18px 24px}header div,main{max-width:1060px;margin:auto}header div{font-weight:650}
+    main{padding:44px 24px 80px}h1{font-size:2.35rem;line-height:1.15;color:#10214b;margin:0 0 12px}h2{margin-top:50px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#163a78}h3{margin-top:32px;color:#244a86}
+    a{color:#075fc8}.lead{font-size:1.15rem;color:var(--muted)}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 28px}.pill{background:#eaf2ff;color:#164a96;border-radius:999px;padding:6px 12px;font-weight:600}
+    .box{border-left:5px solid var(--blue);background:var(--soft);padding:16px 20px;margin:22px 0}.tip{border-color:#16a36a;background:var(--tip)}.warn{border-color:#f08c2e;background:var(--warn)}.danger{border-color:#db3147;background:var(--danger)}.hf{border-color:var(--hf);background:#fffbea}
+    .code{position:relative;margin:18px 0 26px}.label{background:#26364d;color:#fff;padding:7px 12px;border-radius:7px 7px 0 0;font-size:.85rem}pre{margin:0;background:#111827;color:#e7edf6;padding:18px;overflow:auto;border-radius:0 0 7px 7px;font:14px/1.55 Consolas,monospace}
+    code{font-family:Consolas,monospace}button{position:absolute;right:9px;top:38px;border:1px solid #7890ad;background:#fff;color:#17345f;border-radius:5px;padding:5px 9px;cursor:pointer}li{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#edf3fb}
+    .flow{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin:24px 0}.flow div{background:#edf3fb;border:1px solid #bfd0e8;border-radius:7px;padding:11px 5px;text-align:center;font-weight:650}.summary{background:#eaf2ff;padding:22px;border-radius:10px;margin-top:44px}
+    @media(max-width:850px){.flow{grid-template-columns:repeat(2,1fr)}}@media print{header,button{display:none}main{max-width:none;padding:0}.code{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<header><div>AI Teaching Labs &nbsp; / &nbsp; Exercise 8</div></header>
+<main>
+  <h1>Advanced RAG Demo</h1>
+  <p class="lead">Improve every important stage of a RAG system over Hugging Face documentation: chunking, retrieval, visualization, reranking, prompting, generation, sources, and evaluation.</p>
+  <div class="meta"><span class="pill">Advanced</span><span class="pill">2-3 hours</span><span class="pill">Google Colab GPU</span></div>
+  <div class="box hf"><strong>Based on:</strong> Hugging Face Open-Source AI Cookbook, <a href="https://huggingface.co/learn/cookbook/en/advanced_rag" target="_blank" rel="noreferrer">Advanced RAG on Hugging Face documentation using LangChain</a>.</div>
+
+  <h2>What makes this advanced?</h2>
+  <div class="flow"><div>Token-aware chunks</div><div>Deduplication</div><div>Cosine FAISS</div><div>Embedding map</div><div>Retrieve many</div><div>ColBERT rerank</div><div>Evaluate</div></div>
+  <p>Simple RAG connects a retriever to a model. Advanced RAG measures and tunes the complete information path so better evidence reaches the reader model.</p>
+
+  <h2>Learning objectives</h2>
+  <ul>
+    <li>Diagnose why character-based chunks can exceed an embedding model's token limit.</li>
+    <li>Create Markdown-aware chunks measured by the actual embedding tokenizer.</li>
+    <li>Remove duplicate chunks and preserve source/start metadata.</li>
+    <li>Use normalized embeddings with cosine distance in FAISS.</li>
+    <li>Visualize semantic neighborhoods with PaCMAP.</li>
+    <li>Use a model's chat template instead of manually guessing prompt tokens.</li>
+    <li>Retrieve many candidates, rerank them with ColBERT, and keep only the best context.</li>
+    <li>Compare reranking configurations and record evidence-based evaluation results.</li>
+  </ul>
+
+  <h2>Classroom simplifications</h2>
+  <div class="box tip"><strong>No advanced stage is removed.</strong> To make the lab practical on Colab, the notebook processes 300 source documents instead of the full dataset, projects at most 500 vectors, retrieves 20 instead of 30 reranking candidates, and generates at most 350 new tokens. Change these constants after the workflow succeeds.</div>
+
+  <h2>1. Open the notebook and enable a GPU</h2>
+  <p><a href="advanced_rag_demo.ipynb" download><strong>Download the prepared notebook</strong></a>, upload it to <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer">Google Colab</a>, and save a copy in Drive.</p>
+  <ol>
+    <li>Choose <strong>Runtime &gt; Change runtime type &gt; T4 GPU</strong>.</li>
+    <li>Run <code>!nvidia-smi</code> and confirm an NVIDIA GPU appears.</li>
+    <li>Run notebook cells in order. Several cells download models or compute embeddings and can take minutes.</li>
+  </ol>
+  <div class="box danger"><strong>Do not run without a GPU:</strong> Zephyr-7B and the embedding workload are intended for GPU execution in this exercise.</div>
+
+  <h2>2. Install the advanced RAG stack</h2>
+  <div class="code"><div class="label">Colab cell - Install</div><button>Copy</button><pre><code>!pip install -q -U transformers accelerate bitsandbytes sentence-transformers faiss-cpu \
+  datasets langchain langchain-community langchain-text-splitters \
+  langchain-huggingface ragatouille pacmap plotly</code></pre></div>
+  <table><thead><tr><th>Component</th><th>Role</th></tr></thead><tbody>
+    <tr><td>Datasets</td><td>Loads the prepared Hugging Face documentation corpus.</td></tr>
+    <tr><td>Sentence Transformers + GTE</td><td>Tokenizes and embeds documentation chunks.</td></tr>
+    <tr><td>FAISS</td><td>Performs nearest-neighbor vector retrieval.</td></tr>
+    <tr><td>PaCMAP + Plotly</td><td>Projects and visualizes high-dimensional embedding space.</td></tr>
+    <tr><td>RAGatouille + ColBERT</td><td>Reranks broad bi-encoder retrieval results with token-level interactions.</td></tr>
+    <tr><td>Transformers + bitsandbytes</td><td>Loads the 7B reader in 4-bit precision.</td></tr>
+  </tbody></table>
+
+  <h2>3. Load the knowledge base</h2>
+  <div class="code"><div class="label">Colab cell - Documentation dataset</div><button>Copy</button><pre><code>from datasets import load_dataset
+from langchain_core.documents import Document
+
+MAX_SOURCE_DOCS = 300
+
+dataset = load_dataset("m-ric/huggingface_doc", split="train")
+if MAX_SOURCE_DOCS is not None:
+    dataset = dataset.select(range(min(MAX_SOURCE_DOCS, len(dataset))))
+
+raw_knowledge_base = [
+    Document(page_content=row["text"], metadata={"source": row["source"]})
+    for row in tqdm(dataset)
+]</code></pre></div>
+  <p>The original cookbook uses the complete corpus. The limit makes iteration faster for teaching. Set <code>MAX_SOURCE_DOCS = None</code> after the lab if you want the complete index.</p>
+
+  <h2>4. Try Markdown-aware character chunking</h2>
+  <p>This first attempt is intentionally diagnostic. It respects Markdown structure but measures size in characters.</p>
+  <div class="code"><div class="label">Colab cell - Character chunks</div><button>Copy</button><pre><code>from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+MARKDOWN_SEPARATORS = [
+    "\n#{1,6} ", "```\n", "\n\\*\\*\\*+\n", "\n---+\n",
+    "\n___+\n", "\n\n", "\n", " ", "",
+]
+
+character_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=1000,
+    chunk_overlap=100,
+    add_start_index=True,
+    strip_whitespace=True,
+    separators=MARKDOWN_SEPARATORS,
+)
+
+character_chunks = []
+for doc in raw_knowledge_base:
+    character_chunks.extend(character_splitter.split_documents([doc]))</code></pre></div>
+  <p>The separator hierarchy first tries headings and code fences, then weaker boundaries. <code>start_index</code> makes it possible to trace a chunk back into its source.</p>
+
+  <h2>5. Diagnose the token-length mismatch</h2>
+  <div class="code"><div class="label">Colab cell - Token histogram</div><button>Copy</button><pre><code>from sentence_transformers import SentenceTransformer
+from transformers import AutoTokenizer
+
+EMBEDDING_MODEL_NAME = "thenlper/gte-small"
+embedding_tokenizer = AutoTokenizer.from_pretrained(EMBEDDING_MODEL_NAME)
+embedding_backbone = SentenceTransformer(EMBEDDING_MODEL_NAME)
+
+character_token_lengths = [
+    len(embedding_tokenizer.encode(doc.page_content))
+    for doc in tqdm(character_chunks)
+]
+
+pd.Series(character_token_lengths).hist(bins=30)
+plt.axvline(embedding_backbone.max_seq_length, color="red", linestyle="--")
+plt.show()</code></pre></div>
+  <div class="box warn"><strong>Important diagnosis:</strong> 1,000 characters is not 1,000 tokens. Chunks above the model's 512-token limit are silently truncated during embedding, which can discard useful text and weaken retrieval.</div>
+
+  <h2>6. Replace it with tokenizer-aware chunking</h2>
+  <div class="code"><div class="label">Colab cell - Token-aware splitter</div><button>Copy</button><pre><code>def split_documents(chunk_size, knowledge_base, tokenizer_name=EMBEDDING_MODEL_NAME):
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    splitter = RecursiveCharacterTextSplitter.from_huggingface_tokenizer(
+        tokenizer,
+        chunk_size=chunk_size,
+        chunk_overlap=int(chunk_size / 10),
+        add_start_index=True,
+        strip_whitespace=True,
+        separators=MARKDOWN_SEPARATORS,
+    )
+
+    chunks = []
+    for doc in knowledge_base:
+        chunks.extend(splitter.split_documents([doc]))
+
+    unique_chunks = []
+    seen_text = set()
+    for doc in chunks:
+        if doc.page_content not in seen_text:
+            seen_text.add(doc.page_content)
+            unique_chunks.append(doc)
+
+    return unique_chunks
+
+docs_processed = split_documents(512, raw_knowledge_base)</code></pre></div>
+  <ul>
+    <li>Chunk size now uses the embedding tokenizer.</li>
+    <li>Overlap remains 10% to protect boundary context.</li>
+    <li>Exact duplicate text is removed so repeated pages do not dominate retrieval.</li>
+    <li>Run the second histogram and verify the distribution is aligned with the model limit.</li>
+  </ul>
+
+  <h2>7. Build cosine FAISS retrieval</h2>
+  <div class="code"><div class="label">Colab cell - Vector database</div><button>Copy</button><pre><code>from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+from langchain_community.vectorstores.utils import DistanceStrategy
+
+embedding_model = HuggingFaceEmbeddings(
+    model_name=EMBEDDING_MODEL_NAME,
+    model_kwargs={"device": "cuda"},
+    encode_kwargs={"normalize_embeddings": True},
+)
+
+knowledge_vector_database = FAISS.from_documents(
+    docs_processed,
+    embedding_model,
+    distance_strategy=DistanceStrategy.COSINE,
+)</code></pre></div>
+  <p>Cosine similarity compares vector direction. Normalizing the vectors and configuring the index consistently prevents a metric mismatch.</p>
+
+  <h2>8. Visualize embedding space</h2>
+  <p>The notebook embeds the query <code>How to create a pipeline object?</code>, reconstructs up to 500 vectors from FAISS, and uses PaCMAP to project them from hundreds of dimensions to two.</p>
+  <ol>
+    <li>Run the PaCMAP cell.</li>
+    <li>Hover over points to inspect source and text.</li>
+    <li>Find the star representing the query.</li>
+    <li>Observe which semantic clusters lie near it.</li>
+  </ol>
+  <div class="box"><strong>Purpose:</strong> the visualization develops intuition and helps detect broad corpus clusters. FAISS still searches the original high-dimensional vectors, not the 2D projection.</div>
+
+  <h2>9. Inspect baseline retrieval</h2>
+  <div class="code"><div class="label">Colab cell - Top five vector results</div><button>Copy</button><pre><code>retrieved_docs = knowledge_vector_database.similarity_search(
+    query=user_query,
+    k=5,
+)
+
+for index, doc in enumerate(retrieved_docs, start=1):
+    print(f"\n--- DOCUMENT {index} ---")
+    print("Metadata:", doc.metadata)
+    print(doc.page_content[:900])</code></pre></div>
+  <p>Read all five results. This is the retrieval baseline that reranking will later improve.</p>
+
+  <h2>10. Load the quantized reader</h2>
+  <div class="code"><div class="label">Colab cell - Zephyr reader</div><button>Copy</button><pre><code>import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, pipeline
+
+READER_MODEL_NAME = "HuggingFaceH4/zephyr-7b-beta"
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16,
+)
+
+reader_tokenizer = AutoTokenizer.from_pretrained(READER_MODEL_NAME)
+reader_model = AutoModelForCausalLM.from_pretrained(
+    READER_MODEL_NAME,
+    quantization_config=bnb_config,
+    device_map="auto",
+)
+
+reader_llm = pipeline(
+    task="text-generation",
+    model=reader_model,
+    tokenizer=reader_tokenizer,
+    do_sample=True,
+    temperature=0.2,
+    repetition_penalty=1.1,
+    return_full_text=False,
+    max_new_tokens=350,
+)</code></pre></div>
+  <p>The source uses <code>bfloat16</code>; this educational notebook uses <code>float16</code> for compatibility with Colab T4 GPUs.</p>
+
+  <h2>11. Generate the prompt from the chat template</h2>
+  <div class="code"><div class="label">Colab cell - Chat template</div><button>Copy</button><pre><code>prompt_in_chat_format = [
+    {
+        "role": "system",
+        "content": (
+            "Use only the information in the context to answer the question. "
+            "Be concise and relevant. Cite source document numbers when useful. "
+            "If the answer cannot be deduced from the context, say that you do not know."
+        ),
+    },
+    {
+        "role": "user",
+        "content": "Context:\n{context}\n---\nQuestion: {question}",
+    },
+]
+
+RAG_PROMPT_TEMPLATE = reader_tokenizer.apply_chat_template(
+    prompt_in_chat_format,
+    tokenize=False,
+    add_generation_prompt=True,
+)</code></pre></div>
+  <p><code>apply_chat_template</code> inserts Zephyr's correct system, user, assistant, and end-of-message tokens. If the reader model changes, its tokenizer generates the appropriate format.</p>
+
+  <h2>12. Add ColBERT reranking</h2>
+  <div class="code"><div class="label">Colab cell - Reranker</div><button>Copy</button><pre><code>from ragatouille import RAGPretrainedModel
+
+reranker = RAGPretrainedModel.from_pretrained("colbert-ir/colbertv2.0")</code></pre></div>
+  <table><thead><tr><th>Stage</th><th>Behavior</th></tr></thead><tbody>
+    <tr><td>GTE bi-encoder</td><td>Embeds query and chunks independently. Fast enough to search the complete index.</td></tr>
+    <tr><td>ColBERT reranker</td><td>Examines finer token interactions for only the retrieved candidates. Slower but more precise.</td></tr>
+  </tbody></table>
+  <div class="box tip"><strong>Retrieve many, keep few:</strong> the notebook retrieves 20 candidates, reranks them, and sends only the best 5 to Zephyr.</div>
+
+  <h2>13. Assemble the advanced RAG function</h2>
+  <p>The notebook's <code>answer_with_rag</code> function performs these steps:</p>
+  <ol>
+    <li>Retrieve <code>num_retrieved_docs</code> candidates from FAISS.</li>
+    <li>Keep content together with source metadata.</li>
+    <li>Optionally rerank candidate text with ColBERT.</li>
+    <li>Keep <code>num_docs_final</code> documents.</li>
+    <li>Number and concatenate documents into context.</li>
+    <li>Fill the model-specific prompt template.</li>
+    <li>Generate the answer and return both answer and source records.</li>
+  </ol>
+  <div class="box warn"><strong>Source preservation:</strong> the educational implementation maps reranked result indices back to original metadata. Do not throw metadata away before reranking if you need citations or traceability.</div>
+
+  <h2>14. Compare reranking off and on</h2>
+  <ol>
+    <li>Run vector-only mode with 5 retrieved and 5 final documents.</li>
+    <li>Read its answer and all selected sources.</li>
+    <li>Run reranked mode with 20 retrieved and 5 final documents.</li>
+    <li>Compare source order, relevance, answer focus, and cited document numbers.</li>
+  </ol>
+  <div class="box"><strong>Expected observation:</strong> reranking should improve the ordering of candidates, but it is not guaranteed to improve every question. That is why the next step measures a set of questions.</div>
+
+  <h2>15. Run the evaluation loop</h2>
+  <p>The final notebook section runs three representative questions and creates a DataFrame with:</p>
+  <ul>
+    <li>The question and generated answer.</li>
+    <li>The five selected source paths.</li>
+    <li><code>retrieval_relevant</code> for human assessment.</li>
+    <li><code>answer_supported</code> for checking whether sources support the answer.</li>
+  </ul>
+  <ol>
+    <li>Read the source chunks for each row.</li>
+    <li>Replace <code>REVIEW</code> with <code>YES</code> or <code>NO</code>.</li>
+    <li>Record the baseline before changing anything.</li>
+    <li>Change only one variable and rerun the same questions.</li>
+  </ol>
+
+  <h2>16. Controlled tuning experiments</h2>
+  <table><thead><tr><th>Variable</th><th>Experiment</th><th>What to observe</th></tr></thead><tbody>
+    <tr><td>Chunk size</td><td>256, 384, 512 tokens</td><td>Specificity versus enough surrounding context.</td></tr>
+    <tr><td>Overlap</td><td>0%, 10%, 20%</td><td>Boundary continuity versus duplicated evidence.</td></tr>
+    <tr><td>Embedding model</td><td>Try another MTEB-ranked model</td><td>Retrieval relevance and runtime.</td></tr>
+    <tr><td>Candidate depth</td><td>10, 20, 30</td><td>Recall versus reranking cost.</td></tr>
+    <tr><td>Final documents</td><td>3, 5, 8</td><td>Evidence coverage versus lost-in-the-middle noise.</td></tr>
+    <tr><td>Reranker</td><td>Off versus on</td><td>Whether source ordering and answer support improve.</td></tr>
+    <tr><td>Prompt</td><td>Change citation and abstention rules</td><td>Grounding, concision, and unsupported claims.</td></tr>
+  </tbody></table>
+
+  <h2>Advanced concepts retained from the cookbook</h2>
+  <ul>
+    <li><strong>Lost in the middle:</strong> excessive context can reduce a model's use of relevant evidence.</li>
+    <li><strong>Token-limit alignment:</strong> chunking must respect the embedding model, not only character count.</li>
+    <li><strong>Metric alignment:</strong> normalized vectors and cosine distance must be configured consistently.</li>
+    <li><strong>Two-stage retrieval:</strong> fast broad recall followed by slower precise reranking.</li>
+    <li><strong>Reader context capacity:</strong> retrieved documents plus instructions and question must fit the reader window.</li>
+    <li><strong>Iterative evaluation:</strong> tune one subsystem at a time against a stable question set.</li>
+  </ul>
+
+  <h2>Further improvements</h2>
+  <p>After completing the notebook, the next production-oriented extensions are:</p>
+  <ul>
+    <li>Build a larger labeled evaluation dataset and add automated retrieval/generation metrics.</li>
+    <li>Try semantic chunking, query expansion, another embedding model, or a different vector index.</li>
+    <li>Compress retrieved context before generation.</li>
+    <li>Add precise citations, conversational history, caching, and corpus update jobs.</li>
+    <li>Protect the system against untrusted or prompt-injecting documents.</li>
+  </ul>
+
+  <h2>Troubleshooting</h2>
+  <table><thead><tr><th>Problem</th><th>Suggested action</th></tr></thead><tbody>
+    <tr><td>Colab out of memory</td><td>Restart, confirm 4-bit loading, process fewer source docs, and avoid loading models twice.</td></tr>
+    <tr><td>PaCMAP is slow</td><td>Reduce <code>projection_count</code>. Projection is educational and does not affect retrieval.</td></tr>
+    <tr><td>RAGatouille import/download failure</td><td>Rerun installation, restart the runtime if requested, and verify internet access.</td></tr>
+    <tr><td>Chunks exceed 512 tokens</td><td>Ensure the token-aware splitter cell replaced the character splitter for the final index.</td></tr>
+    <tr><td>Poor retrieval</td><td>Inspect chunks, source coverage, query wording, embedding model, chunk size, and candidate depth before blaming the reader.</td></tr>
+    <tr><td>Answer invents details</td><td>Check whether sources support the claim, strengthen abstention instructions, reduce noise, and add evaluation.</td></tr>
+  </tbody></table>
+
+  <h2>Save and cleanup</h2>
+  <ol>
+    <li>Save the completed notebook in Drive or download the <code>.ipynb</code>.</li>
+    <li>Export the evaluation table if required by your instructor.</li>
+    <li>Choose <strong>Runtime &gt; Disconnect and delete runtime</strong> to release GPU memory and delete temporary indexes.</li>
+  </ol>
+
+  <div class="summary"><strong>Summary</strong><br>Advanced RAG is systematic optimization of the full evidence pipeline: corpus selection, tokenizer-aware chunking, deduplication, embeddings, distance metric, vector recall, reranking, context size, model-specific prompting, source traceability, and repeatable evaluation.</div>
+</main>
+<script>async function copyText(t){if(navigator.clipboard){try{await navigator.clipboard.writeText(t);return}catch{}}const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}document.querySelectorAll("button").forEach(b=>b.onclick=async()=>{await copyText(b.nextElementSibling.innerText);b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)});</script>
+</body>
+</html>

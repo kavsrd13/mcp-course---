@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise: Simple RAG Demo</title>
+  <style>
+    :root{--blue:#2563eb;--navy:#172554;--ink:#25324a;--muted:#5d6b82;--line:#d9e1ec;--soft:#f5f8fc;--tip:#ecfdf5;--warn:#fff7ed;--danger:#fff1f2;--hf:#ffbd19}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 "Segoe UI",Arial,sans-serif;color:var(--ink)}header{background:var(--navy);color:#fff;padding:18px 24px}header div,main{max-width:1060px;margin:auto}header div{font-weight:650}
+    main{padding:44px 24px 80px}h1{font-size:2.35rem;line-height:1.15;color:#10214b;margin:0 0 12px}h2{margin-top:50px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#163a78}h3{margin-top:32px;color:#244a86}
+    a{color:#075fc8}.lead{font-size:1.15rem;color:var(--muted)}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 28px}.pill{background:#eaf2ff;color:#164a96;border-radius:999px;padding:6px 12px;font-weight:600}
+    .box{border-left:5px solid var(--blue);background:var(--soft);padding:16px 20px;margin:22px 0}.tip{border-color:#16a36a;background:var(--tip)}.warn{border-color:#f08c2e;background:var(--warn)}.danger{border-color:#db3147;background:var(--danger)}.hf{border-color:var(--hf);background:#fffbea}
+    .code{position:relative;margin:18px 0 26px}.label{background:#26364d;color:#fff;padding:7px 12px;border-radius:7px 7px 0 0;font-size:.85rem}pre{margin:0;background:#111827;color:#e7edf6;padding:18px;overflow:auto;border-radius:0 0 7px 7px;font:14px/1.55 Consolas,monospace}
+    code{font-family:Consolas,monospace}button{position:absolute;right:9px;top:38px;border:1px solid #7890ad;background:#fff;color:#17345f;border-radius:5px;padding:5px 9px;cursor:pointer}li{margin:8px 0}
+    table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#edf3fb}
+    .flow{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:24px 0}.flow div{background:#edf3fb;border:1px solid #bfd0e8;border-radius:7px;padding:12px 6px;text-align:center;font-weight:650}.summary{background:#eaf2ff;padding:22px;border-radius:10px;margin-top:44px}
+    @media(max-width:800px){.flow{grid-template-columns:repeat(2,1fr)}}@media print{header,button{display:none}main{max-width:none;padding:0}.code{break-inside:avoid}}
+  </style>
+</head>
+<body>
+<header><div>AI Teaching Labs &nbsp; / &nbsp; Exercise 7</div></header>
+<main>
+  <h1>Simple RAG Demo</h1>
+  <p class="lead">Build an end-to-end Retrieval-Augmented Generation system in Google Colab using GitHub issues, BGE embeddings, FAISS, a 4-bit Zephyr model, and LangChain.</p>
+  <div class="meta"><span class="pill">Intermediate</span><span class="pill">90-120 minutes</span><span class="pill">Google Colab GPU</span></div>
+  <div class="box hf"><strong>Based on:</strong> Hugging Face Open-Source AI Cookbook, <a href="https://huggingface.co/learn/cookbook/en/rag_zephyr_langchain" target="_blank" rel="noreferrer">Simple RAG for GitHub issues using Hugging Face Zephyr and LangChain</a>.</div>
+
+  <h2>Learning objectives</h2>
+  <ul>
+    <li>Explain why RAG can add current, domain-specific knowledge without fine-tuning an LLM.</li>
+    <li>Load GitHub issues as LangChain documents and inspect their metadata.</li>
+    <li>Chunk documents, create embeddings, store them in FAISS, and retrieve relevant chunks.</li>
+    <li>Load Zephyr-7B with 4-bit quantization on a Colab GPU.</li>
+    <li>Construct a prompt, LLM chain, and RAG chain with LangChain Expression Language.</li>
+    <li>Compare the same model with and without retrieved context and inspect its sources.</li>
+  </ul>
+
+  <h2>RAG architecture</h2>
+  <div class="flow"><div>GitHub issues</div><div>Text chunks</div><div>Embeddings</div><div>FAISS search</div><div>Zephyr prompt</div><div>Answer + sources</div></div>
+  <p>RAG does not update Zephyr's weights. It retrieves relevant external text and includes it in the model prompt at inference time.</p>
+
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>A Google account with access to <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer">Google Colab</a> and preferably a T4 GPU.</li>
+    <li>A GitHub account and a personal access token that can read public repositories.</li>
+    <li>The supplied <code>simple_rag_demo.ipynb</code> notebook.</li>
+  </ul>
+  <div class="box warn"><strong>Resource requirement:</strong> Zephyr has about 7 billion parameters. This lab requires 4-bit quantization and a GPU with roughly 15 GB memory. A free Colab T4 normally works, but GPU availability is not guaranteed.</div>
+
+  <h2>1. Open the notebook in Google Colab</h2>
+  <p><a href="simple_rag_demo.ipynb" download><strong>Download the prepared notebook</strong></a>.</p>
+  <ol>
+    <li>Open Google Colab and choose the <strong>Upload</strong> tab.</li>
+    <li>Upload <code>simple_rag_demo.ipynb</code>.</li>
+    <li>Choose <strong>File &gt; Save a copy in Drive</strong>.</li>
+    <li>Choose <strong>Runtime &gt; Change runtime type &gt; T4 GPU &gt; Save</strong>.</li>
+    <li>Run the <code>!nvidia-smi</code> cell and confirm that a GPU is listed.</li>
+  </ol>
+  <div class="box danger"><strong>Do not continue without a GPU:</strong> the 7B generation model is not practical for this classroom notebook on a Colab CPU.</div>
+
+  <h2>2. Install all dependencies</h2>
+  <div class="code"><div class="label">Colab cell - Install</div><button>Copy</button><pre><code>!pip install -q -U transformers accelerate bitsandbytes sentence-transformers faiss-cpu \
+  langchain langchain-community langchain-text-splitters langchain-huggingface</code></pre></div>
+  <table><thead><tr><th>Package</th><th>Purpose</th></tr></thead><tbody>
+    <tr><td><code>transformers</code></td><td>Loads Zephyr, its tokenizer, and the text-generation pipeline.</td></tr>
+    <tr><td><code>accelerate</code> and <code>bitsandbytes</code></td><td>Place the model on available devices and load its weights in 4-bit precision.</td></tr>
+    <tr><td><code>sentence-transformers</code></td><td>Runs the BGE embedding model.</td></tr>
+    <tr><td><code>faiss-cpu</code></td><td>Stores vectors and performs efficient similarity search. GPU inference is still used by the embedding model.</td></tr>
+    <tr><td>LangChain packages</td><td>Provide document loaders, splitting, vector-store integration, prompts, pipelines, and runnable chains.</td></tr>
+  </tbody></table>
+  <p>Run the locale compatibility cell used for Colab:</p>
+  <div class="code"><div class="label">Colab cell - UTF-8 locale</div><button>Copy</button><pre><code>import locale
+
+locale.getpreferredencoding = lambda: "UTF-8"
+print("Locale:", locale.getpreferredencoding())</code></pre></div>
+
+  <h2>3. Create and enter a GitHub token</h2>
+  <ol>
+    <li>In GitHub, open <strong>Settings &gt; Developer settings &gt; Personal access tokens &gt; Fine-grained tokens</strong>.</li>
+    <li>Create a token for public repository read access. Set a short expiration suitable for the class.</li>
+    <li>Copy the token immediately. GitHub does not display it again.</li>
+    <li>Run this cell and paste the token into the hidden prompt:</li>
+  </ol>
+  <div class="code"><div class="label">Colab cell - Secret input</div><button>Copy</button><pre><code>from getpass import getpass
+
+ACCESS_TOKEN = getpass("GitHub personal access token: ")
+print("Token received:", bool(ACCESS_TOKEN))</code></pre></div>
+  <div class="box danger"><strong>Protect the token:</strong> never type it directly into a visible code cell, output, or shared notebook. Revoke the classroom token when finished.</div>
+
+  <h2>4. Load all PEFT GitHub issues</h2>
+  <div class="code"><div class="label">Colab cell - GitHubIssuesLoader</div><button>Copy</button><pre><code>from langchain_community.document_loaders import GitHubIssuesLoader
+
+loader = GitHubIssuesLoader(
+    repo="huggingface/peft",
+    access_token=ACCESS_TOKEN,
+    include_prs=False,
+    state="all",
+)
+
+docs = loader.load()
+print("Issues loaded:", len(docs))</code></pre></div>
+  <ul>
+    <li><code>repo</code> identifies the owner and repository.</li>
+    <li><code>include_prs=False</code> excludes pull requests, which GitHub also represents through the Issues API.</li>
+    <li><code>state="all"</code> loads both open and closed issues.</li>
+  </ul>
+  <p>Loading and pagination may take several minutes. Inspect one resulting <code>Document</code>:</p>
+  <div class="code"><div class="label">Colab cell - Inspect a document</div><button>Copy</button><pre><code>first_doc = docs[0]
+print("Metadata keys:", first_doc.metadata.keys())
+print("Metadata:", first_doc.metadata)
+print("Content preview:\n", first_doc.page_content[:1000])</code></pre></div>
+  <div class="box"><strong>Document anatomy:</strong> <code>page_content</code> contains text to embed. <code>metadata</code> retains fields such as issue URL, title, labels, state, or creator for tracing sources.</div>
+
+  <h2>5. Split issues into chunks</h2>
+  <div class="code"><div class="label">Colab cell - Recursive splitter</div><button>Copy</button><pre><code>from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=512,
+    chunk_overlap=30,
+)
+
+chunked_docs = splitter.split_documents(docs)
+print("Original issues:", len(docs))
+print("Chunks created:", len(chunked_docs))
+print("First chunk length:", len(chunked_docs[0].page_content))
+print("First chunk preview:\n", chunked_docs[0].page_content[:600])</code></pre></div>
+  <p><code>RecursiveCharacterTextSplitter</code> tries paragraph, line, word, and character boundaries. The 30-character overlap reduces the chance that a useful idea is cut exactly at a chunk boundary.</p>
+  <div class="box warn"><strong>Tradeoff:</strong> Small chunks improve retrieval precision but may lose surrounding explanation. Large chunks preserve context but can add irrelevant text and consume more prompt tokens.</div>
+
+  <h2>6. Create BGE embeddings and FAISS</h2>
+  <div class="code"><div class="label">Colab cell - Embeddings and vector store</div><button>Copy</button><pre><code>from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+
+embedding_model = HuggingFaceEmbeddings(
+    model_name="BAAI/bge-base-en-v1.5",
+    model_kwargs={"device": "cuda"},
+    encode_kwargs={"normalize_embeddings": True},
+)
+
+sample_vector = embedding_model.embed_query("How do PEFT adapters work?")
+print("Embedding dimensions:", len(sample_vector))
+
+db = FAISS.from_documents(chunked_docs, embedding_model)
+print("FAISS vector store created.")</code></pre></div>
+  <ol>
+    <li>BGE converts every chunk into a fixed-length dense vector.</li>
+    <li>Normalization makes vector direction appropriate for cosine-like similarity comparisons.</li>
+    <li>FAISS indexes the vectors and keeps the associated LangChain documents.</li>
+  </ol>
+  <div class="box tip"><strong>Most time-consuming ingestion step:</strong> embedding thousands of chunks can take several minutes. Do not rerun it unnecessarily.</div>
+
+  <h2>7. Configure and test the retriever</h2>
+  <div class="code"><div class="label">Colab cell - Similarity retriever</div><button>Copy</button><pre><code>retriever = db.as_retriever(
+    search_type="similarity",
+    search_kwargs={"k": 4},
+)
+
+question = "How do you combine multiple adapters?"
+retrieved_docs = retriever.invoke(question)
+
+print("Retrieved chunks:", len(retrieved_docs))
+for index, doc in enumerate(retrieved_docs, start=1):
+    print(f"\n--- RESULT {index} ---")
+    print("Source:", doc.metadata.get("url", doc.metadata.get("source", "unknown")))
+    print(doc.page_content[:700])</code></pre></div>
+  <p>The retriever embeds the question with the same BGE model and returns the four closest chunk vectors. Read the text now: generation cannot repair fundamentally irrelevant retrieval.</p>
+
+  <h2>8. Load quantized Zephyr-7B</h2>
+  <div class="code"><div class="label">Colab cell - 4-bit model</div><button>Copy</button><pre><code>import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+
+model_name = "HuggingFaceH4/zephyr-7b-beta"
+
+bnb_config = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_compute_dtype=torch.float16,
+)
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    quantization_config=bnb_config,
+    device_map="auto",
+)
+model.eval()
+print("Model device:", model.device)</code></pre></div>
+  <table><thead><tr><th>Setting</th><th>Meaning</th></tr></thead><tbody>
+    <tr><td><code>load_in_4bit</code></td><td>Stores most weights using four bits to reduce memory.</td></tr>
+    <tr><td><code>use_double_quant</code></td><td>Quantizes quantization constants for additional savings.</td></tr>
+    <tr><td><code>nf4</code></td><td>A 4-bit format designed for normally distributed neural-network weights.</td></tr>
+    <tr><td><code>float16</code></td><td>Computation type compatible with the common Colab T4. The source recipe used <code>bfloat16</code>.</td></tr>
+    <tr><td><code>device_map="auto"</code></td><td>Lets Accelerate place model modules on available hardware.</td></tr>
+  </tbody></table>
+
+  <h2>9. Create the text-generation LLM</h2>
+  <div class="code"><div class="label">Colab cell - Generation pipeline</div><button>Copy</button><pre><code>from transformers import pipeline
+from langchain_huggingface.llms import HuggingFacePipeline
+
+text_generation_pipeline = pipeline(
+    task="text-generation",
+    model=model,
+    tokenizer=tokenizer,
+    temperature=0.2,
+    do_sample=True,
+    repetition_penalty=1.1,
+    return_full_text=False,
+    max_new_tokens=300,
+)
+
+llm = HuggingFacePipeline(pipeline=text_generation_pipeline)
+print("LangChain LLM is ready.")</code></pre></div>
+  <ul>
+    <li>Low temperature limits randomness, although <code>do_sample=True</code> means exact answers can still vary.</li>
+    <li>Repetition penalty discourages loops.</li>
+    <li><code>return_full_text=False</code> returns only the generated answer, not the entire prompt.</li>
+    <li><code>HuggingFacePipeline</code> exposes the Transformers pipeline as a LangChain Runnable.</li>
+  </ul>
+
+  <h2>10. Define the Zephyr prompt and LLM chain</h2>
+  <div class="code"><div class="label">Colab cell - Prompt and LCEL chain</div><button>Copy</button><pre><code>from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import PromptTemplate
+
+prompt_template = """&lt;|system|&gt;
+Answer the question using the supplied context. If the context does not contain
+the answer, say that you do not know. Do not invent repository-specific facts.
+
+Context:
+{context}
+&lt;/s&gt;
+&lt;|user|&gt;
+{question}
+&lt;/s&gt;
+&lt;|assistant|&gt;
+"""
+
+prompt = PromptTemplate(
+    input_variables=["context", "question"],
+    template=prompt_template,
+)
+
+llm_chain = prompt | llm | StrOutputParser()
+print(prompt.format(context="EXAMPLE CONTEXT", question="EXAMPLE QUESTION"))</code></pre></div>
+  <p>The control tokens follow Zephyr's chat format. The LCEL pipe operator sends the formatted prompt into the LLM and parses its output as a string.</p>
+
+  <h2>11. Connect retrieval to generation</h2>
+  <div class="code"><div class="label">Colab cell - RAG chain</div><button>Copy</button><pre><code>from langchain_core.runnables import RunnableLambda, RunnablePassthrough
+
+def format_docs(documents):
+    return "\n\n".join(
+        f"Source {index}:\n{doc.page_content}"
+        for index, doc in enumerate(documents, start=1)
+    )
+
+rag_chain = (
+    {
+        "context": retriever | RunnableLambda(format_docs),
+        "question": RunnablePassthrough(),
+    }
+    | llm_chain
+)
+
+print("RAG chain is ready.")</code></pre></div>
+  <ol>
+    <li>The input question goes to the retriever.</li>
+    <li>The retrieved <code>Document</code> objects are converted into one context string.</li>
+    <li><code>RunnablePassthrough</code> preserves the original question.</li>
+    <li>The context and question fill the prompt template.</li>
+    <li>Zephyr generates the final answer.</li>
+  </ol>
+
+  <h2>12. Compare without and with RAG</h2>
+  <div class="code"><div class="label">Colab cell - Baseline</div><button>Copy</button><pre><code>baseline_answer = llm_chain.invoke({
+    "context": "",
+    "question": question,
+})
+
+print("WITHOUT RETRIEVAL\n")
+print(baseline_answer)</code></pre></div>
+  <p>The model may interpret “adapters” generically because no PEFT-specific evidence is supplied.</p>
+  <div class="code"><div class="label">Colab cell - RAG answer</div><button>Copy</button><pre><code>rag_answer = rag_chain.invoke(question)
+
+print("WITH RETRIEVAL\n")
+print(rag_answer)</code></pre></div>
+  <p>Compare specificity, terminology, and factual grounding. The model is unchanged; only the prompt context differs.</p>
+
+  <h2>13. Preserve source documents</h2>
+  <div class="code"><div class="label">Colab cell - Answer with sources</div><button>Copy</button><pre><code>def answer_with_sources(user_question):
+    source_docs = retriever.invoke(user_question)
+    context = format_docs(source_docs)
+    answer = llm_chain.invoke({"context": context, "question": user_question})
+    return answer, source_docs
+
+answer, sources = answer_with_sources(question)
+print("ANSWER\n", answer)
+
+print("\nSOURCES")
+for index, doc in enumerate(sources, start=1):
+    print(index, doc.metadata.get("url", doc.metadata.get("source", "unknown")))</code></pre></div>
+  <div class="box tip"><strong>Evaluation habit:</strong> read the source chunks and URLs. A fluent answer is not evidence that retrieval was relevant or that the generated statements are supported.</div>
+
+  <h2>14. Student experiments</h2>
+  <ol>
+    <li>Ask at least two PEFT-specific questions.</li>
+    <li>Print retrieved documents before generating each answer.</li>
+    <li>Change <code>k</code> from 4 to 2 and then 8. Record how context and answer quality change.</li>
+    <li>Change <code>chunk_size</code> only after predicting the effect. Rebuilding the vector store is required.</li>
+    <li>Ask a question unrelated to PEFT and confirm whether the model admits that the context is insufficient.</li>
+  </ol>
+
+  <h2>Important limitations</h2>
+  <ul>
+    <li>GitHub issues can contain outdated, incomplete, or incorrect user reports.</li>
+    <li>Similarity does not guarantee relevance, and retrieval does not guarantee factual generation.</li>
+    <li>This notebook has no reranker, citations inside generated sentences, evaluation framework, or prompt-injection protection.</li>
+    <li>Updating issues requires rebuilding or incrementally updating the vector store.</li>
+    <li>The notebook stores FAISS only in Colab memory; the index disappears when the runtime is deleted.</li>
+  </ul>
+
+  <h2>Troubleshooting</h2>
+  <table><thead><tr><th>Problem</th><th>Suggested action</th></tr></thead><tbody>
+    <tr><td>No GPU or CUDA error</td><td>Select a T4 GPU and reconnect. Run <code>!nvidia-smi</code> before model loading.</td></tr>
+    <tr><td>GitHub 401/403</td><td>Generate a valid token, verify read access and expiration, and rerun only the secret and loader cells.</td></tr>
+    <tr><td>GitHub rate limit</td><td>Wait, use an authenticated token, and avoid repeatedly loading all issues.</td></tr>
+    <tr><td>CUDA out of memory</td><td>Restart the runtime, ensure 4-bit loading is enabled, and do not load the model twice.</td></tr>
+    <tr><td><code>bitsandbytes</code> error</td><td>Confirm the runtime has an NVIDIA GPU, restart after installation if necessary, then rerun from the top.</td></tr>
+    <tr><td>LangChain import error</td><td>Rerun the installation cell; current integrations are split across community, text-splitter, and Hugging Face packages.</td></tr>
+    <tr><td>Poor RAG answer</td><td>Inspect retrieval first. Adjust question wording, chunking, <code>k</code>, corpus quality, or add documentation to the corpus.</td></tr>
+  </tbody></table>
+
+  <h2>Save and cleanup</h2>
+  <ol>
+    <li>Choose <strong>Runtime &gt; Run all</strong> only if you are prepared to wait for ingestion and model loading again.</li>
+    <li>Save the notebook in Drive or download the <code>.ipynb</code>.</li>
+    <li>Revoke the temporary GitHub token.</li>
+    <li>Choose <strong>Runtime &gt; Disconnect and delete runtime</strong> to release GPU resources and remove secrets from memory.</li>
+  </ol>
+
+  <div class="summary"><strong>Summary</strong><br>You built the full RAG pipeline: load changing external data, split it, embed it, index it, retrieve relevant evidence, format that evidence into a model-specific prompt, generate an answer, and retain source documents for inspection.</div>
+</main>
+<script>async function copyText(t){if(navigator.clipboard){try{await navigator.clipboard.writeText(t);return}catch{}}const a=document.createElement("textarea");a.value=t;document.body.append(a);a.select();document.execCommand("copy");a.remove()}document.querySelectorAll("button").forEach(b=>b.onclick=async()=>{await copyText(b.nextElementSibling.innerText);b.textContent="Copied";setTimeout(()=>b.textContent="Copy",1200)});</script>
+</body>
+</html>
