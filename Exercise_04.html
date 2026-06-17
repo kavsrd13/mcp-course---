@@ -56,13 +56,23 @@
             <article class="col-sm-10 mb-5">
                 <h1 id="create-a-generative-ai-chat-app">Create a generative AI chat app</h1>
 
-<p>In this exercise, you use the OpenAI SDK and the Responses API to create a chat app that connects to a model deployed in a Microsoft Foundry project.</p>
+<p>In this exercise, you use the OpenAI SDK to build chat apps with both the <em>Chat Completions</em> API and the <em>Responses</em> API against a model deployed in a Microsoft Foundry project.</p>
 
 <p>This exercise takes approximately <strong>45</strong> minutes.</p>
 
 <blockquote>
   <p><strong>Note</strong>: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.</p>
 </blockquote>
+
+<h2 id="learning-objective">Learning objective</h2>
+
+<p>In this lab, you will learn:</p>
+
+<ul>
+  <li>How to call the <strong>Chat Completions API</strong> for message-based chat prompts.</li>
+  <li>How to call the <strong>Responses API</strong> for instruction/input style requests with response tracking.</li>
+  <li>The practical differences between these two API styles and when to use each.</li>
+</ul>
 
 <h2 id="prerequisites">Prerequisites</h2>
 
@@ -143,7 +153,7 @@ AZURE_OPENAI_DEPLOYMENT=YOUR_DEPLOYMENT_NAME</code></pre>
 
 <h3 id="use-the-chatcompletions-api-to-chat-with-the-model">Use the <em>ChatCompletions</em> API to chat with the model</h3>
 
-<p>Create a new Python file named <code>chat_app.py</code>. Add the code in parts so students can understand each block before running the full script.</p>
+<p>Create a new Python file named <code>chat_app.py</code>. Add the code in parts.</p>
 
 <h4 id="part-1-imports-and-authentication">Part 1: Imports and authentication</h4>
 
@@ -200,6 +210,85 @@ print(completion.choices[0].message.content)</code></pre>
   <li>Expected output: a short answer such as <strong>Paris</strong>.</li>
 </ol>
 
+<h3 id="api-differences">Chat Completions vs Responses API</h3>
+
+<p>Before writing the second file, review the API differences:</p>
+
+<ul>
+  <li><strong>Chat Completions</strong>: Uses a <code>messages</code> array with explicit roles like <code>system</code>, <code>user</code>, and <code>assistant</code>.</li>
+  <li><strong>Responses</strong>: Uses <code>instructions</code> and <code>input</code>, and supports conversation continuation with <code>previous_response_id</code>.</li>
+  <li><strong>Use case</strong>: Chat Completions is ideal for explicit message control, while Responses is often simpler for workflow-driven prompt/response handling.</li>
+</ul>
+
+<h3 id="use-the-responses-api-with-response-py">Use the <em>Responses</em> API with <code>response.py</code></h3>
+
+<p>Create a new file named <code>response.py</code> and add the following code in parts.</p>
+
+<h4 id="response-part-1-client-config">Part 1: Client configuration</h4>
+
+<p>This part sets endpoint, API key, and deployment name for API key authentication.</p>
+
+<pre><code class="language-python">from openai import OpenAI
+
+# Use values from your Foundry/Azure portal
+azure_openai_endpoint = "https://YOUR-RESOURCE.openai.azure.com/openai/v1"
+api_key = "YOUR_API_KEY"
+model_deployment = "YOUR_DEPLOYMENT_NAME"
+
+openai_client = OpenAI(
+    base_url=azure_openai_endpoint,
+    api_key=api_key,
+    default_headers={"api-key": api_key}
+)</code></pre>
+
+<h4 id="response-part-2-chat-loop">Part 2: Build a chat loop</h4>
+
+<p>This part creates an interactive loop and tracks <code>last_response_id</code> to keep context between turns.</p>
+
+<pre><code class="language-python">def chat_with_model():
+    print("--- Chatting with model using Responses API (Type 'quit' to exit) ---")
+    last_response_id = None
+
+    while True:
+        input_text = input("\nYou: ")
+        if input_text.lower() in ["quit", "exit"]:
+            break</code></pre>
+
+<h4 id="response-part-3-call-responses-api">Part 3: Call the Responses API</h4>
+
+<p>This part sends the request using <code>instructions</code>, <code>input</code>, and <code>previous_response_id</code>.</p>
+
+<pre><code class="language-python">        try:
+            response = openai_client.responses.create(
+                model=model_deployment,
+                instructions="You are a helpful AI assistant that answers questions and provides information.",
+                input=input_text,
+                previous_response_id=last_response_id,
+            )
+
+            print(f"Assistant: {response.output_text}")
+            last_response_id = response.id
+
+        except Exception as e:
+            print(f"Error occurred: {e}")</code></pre>
+
+<h4 id="response-part-4-run-the-file">Part 4: Run the file</h4>
+
+<pre><code class="language-python">if __name__ == "__main__":
+    chat_with_model()</code></pre>
+
+<ol>
+  <li>Save the file as <code>response.py</code>.</li>
+  <li>Run it:
+    <pre><code class="language-powershell">python response.py</code></pre>
+  </li>
+  <li>Ask two related questions (for example, first ask about ELIZA, then ask how it compares with modern LLMs) and observe context retention.</li>
+</ol>
+
+<blockquote>
+  <p><strong>Security reminder</strong>: Never hardcode real keys in source files you plan to share or commit. Prefer environment variables for production use.</p>
+</blockquote>
+
 <h3 id="optional-env-based-version">Optional: use values from .env inside Python</h3>
 
 <p>If you prefer not to hardcode endpoint and deployment values in source code, use this version:</p>
@@ -226,7 +315,7 @@ print(completion.choices[0].message.content)</code></pre>
 
 <h2 id="summary">Summary</h2>
 
-<p>In this exercise, you created a Foundry project, used the <strong>New Foundry</strong> agent flow to get an automatic model deployment, captured deployment settings, created a local <code>.env</code> file, wrote a Python app in clear code blocks, and ran it with the OpenAI SDK.</p>
+<p>In this exercise, you created a Foundry project, used the <strong>New Foundry</strong> agent flow to get an automatic model deployment, captured deployment settings, and implemented two client styles: one with <em>Chat Completions</em> and one with <em>Responses</em>. You also compared the API patterns and practiced context handling with <code>previous_response_id</code>.</p>
 
 <h2 id="clean-up">Clean up</h2>
 
