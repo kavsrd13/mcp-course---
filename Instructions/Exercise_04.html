@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>
+            Create a generative AI chat app | 
+            
+            Develop generative AI solutions in Azure
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <link rel="stylesheet" href="/mslearn-ai-studio/assets/css/style.css?v=bb2ee0659192e2b709180664179aa949f1110420">
+    </head>
+    <body data-spy="scroll" data-target="#linksMenu">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+        <div class="container d-flex justify-content-between">
+            <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
+            <span class="my-1 title text-black">Develop generative AI solutions in Azure</span>
+            <span class="ml-2">
+                <a href="https://microsoftlearning.github.io/mslearn-ai-studio" class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    &nbsp;Home
+                </a>
+            </span>
+        </div>
+        <!--
+        <div class="container d-flex justify-content-between">
+            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-studio">
+                Develop generative AI solutions in Azure
+            </a>
+            <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <span class="ml-2">GitHub</span>
+            </a>
+        </div>
+        -->
+    </nav>
+    <hr color-"gray"/>
+    <div class="container">
+        <main class="row extra-padding">
+            <aside class="col-sm-2">       
+                <nav id="linksMenu" class="toc sticky-top">
+                    <ul class="nav navbar-nav flex-column">
+                    </ul>
+                </nav>         
+            </aside>
+            <hr class="" />
+            <article class="col-sm-10 mb-5">
+                <h1 id="create-a-generative-ai-chat-app">Create a generative AI chat app</h1>
+
+<p>In this exercise, you use the OpenAI SDK and the Responses API to create a chat app that connects to a model deployed in a Microsoft Foundry project.</p>
+
+<p>This exercise takes approximately <strong>45</strong> minutes.</p>
+
+<blockquote>
+  <p><strong>Note</strong>: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.</p>
+</blockquote>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>Before starting this exercise, ensure you have:</p>
+
+<ul>
+  <li>An active <a href="https://azure.microsoft.com/pricing/purchase-options/azure-account">Azure subscription</a></li>
+  <li><a href="https://code.visualstudio.com/">Visual Studio Code</a> installed</li>
+  <li><a href="https://www.python.org/downloads/release/python-31312/">Python version <strong>3.13.xx</strong></a> installed*</li>
+  <li><a href="https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest">Azure CLI</a> installed</li>
+</ul>
+
+<blockquote>
+  <p>* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.</p>
+</blockquote>
+
+<h2 id="create-a-microsoft-foundry-project">Create a Microsoft Foundry project</h2>
+
+<p>Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.</p>
+
+<ol>
+  <li>
+    <p>In a web browser, open the <a href="https://ai.azure.com">Microsoft Foundry portal</a> at <code>https://ai.azure.com</code> and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.</p>
+  </li>
+  <li>If it is not already enabled, in the tool bar the top of the page, enable the <strong>New Foundry</strong> option. Then, if prompted, create a new project with a unique name; expanding the <strong>Advanced options</strong> area to specify the following settings for your project:
+    <ul>
+      <li><strong>Foundry resource</strong>: <em>Use the default name for your resource (usually {project_name}-resource)</em></li>
+      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
+      <li><strong>Resource group</strong>: <em>Create or select a resource group</em></li>
+      <li><strong>Region</strong>: Select any of the <strong>AI Foundry recommended</strong> regions in <strong target="_blank"><a href="https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability">this list</a></strong></li>
+    </ul>
+  </li>
+  <li>Wait for your project to be created. Then view its home page.</li>
+</ol>
+
+<h2 id="deploy-a-model">Deploy a model</h2>
+
+<p>In this version of the lab, you will create an agent in the <strong>New Foundry</strong> experience. When the agent is created, a model deployment is created automatically.</p>
+
+<ol>
+  <li>In the Foundry portal, ensure <strong>New Foundry</strong> is enabled.</li>
+  <li>Open the left navigation and select <strong>Agents</strong>.</li>
+  <li>Select <strong>+ New agent</strong> and create an agent with default settings.</li>
+  <li>Wait until agent creation finishes. A model deployment is created automatically for agent usage.</li>
+  <li>Go to <strong>Models</strong> and note the following values:
+    <ul>
+      <li><strong>Deployment name</strong> (use your own deployment name from the portal)</li>
+      <li><strong>Azure OpenAI endpoint</strong> (example format: <code>https://YOUR-RESOURCE.services.ai.azure.com/openai/v1</code>)</li>
+      <li><strong>API key</strong> (from your resource keys)</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="create-a-client-application-to-chat-with-the-model">Create a client application to chat with the model</h2>
+
+<p>Now create the app files directly in Visual Studio Code so students can copy, paste, and run without cloning any repository.</p>
+
+<h3 id="create-the-local-project-files">Create the local project files</h3>
+
+<ol>
+  <li>Open Visual Studio Code and create a new folder for this lab (for example, <code>exercise-04-chat-app</code>).</li>
+  <li>Open a terminal in that folder.</li>
+  <li>Create and activate a virtual environment:
+    <pre><code class="language-powershell">python -m venv .venv
+.\.venv\Scripts\Activate.ps1</code></pre>
+  </li>
+  <li>Install required packages:
+    <pre><code class="language-powershell">pip install openai azure-identity python-dotenv</code></pre>
+  </li>
+  <li>Create a new file named <code>.env</code> in the folder and paste this template:</li>
+</ol>
+
+<pre><code class="language-bash">AZURE_OPENAI_ENDPOINT=https://YOUR-RESOURCE.services.ai.azure.com/openai/v1
+AZURE_OPENAI_API_KEY=YOUR_API_KEY
+AZURE_OPENAI_DEPLOYMENT=YOUR_DEPLOYMENT_NAME</code></pre>
+
+<p>Replace each placeholder with the values you noted from <strong>Models</strong> and the resource key page.</p>
+
+<h3 id="use-the-chatcompletions-api-to-chat-with-the-model">Use the <em>ChatCompletions</em> API to chat with the model</h3>
+
+<p>Create a new Python file named <code>chat_app.py</code>. Add the code in parts so students can understand each block before running the full script.</p>
+
+<h4 id="part-1-imports-and-authentication">Part 1: Imports and authentication</h4>
+
+<p>This part imports the OpenAI SDK and Azure identity helpers. <code>DefaultAzureCredential</code> allows Entra ID sign-in. The token provider gives OpenAI a bearer token for Azure AI.</p>
+
+<pre><code class="language-python">from openai import OpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider</code></pre>
+
+<h4 id="part-2-connection-settings">Part 2: Connection settings</h4>
+
+<p>This part sets the endpoint and deployment name. Students can paste direct values first and later switch to environment variable loading if needed.</p>
+
+<pre><code class="language-python">endpoint = "https://YOUR-RESOURCE.services.ai.azure.com/openai/v1"
+deployment_name = "YOUR_DEPLOYMENT_NAME"</code></pre>
+
+<h4 id="part-3-token-provider-and-client">Part 3: Token provider and client</h4>
+
+<p>This part creates an Entra token provider and initializes the OpenAI client for Azure endpoint access.</p>
+
+<pre><code class="language-python">token_provider = get_bearer_token_provider(
+    DefaultAzureCredential(),
+    "https://ai.azure.com/.default"
+)
+
+client = OpenAI(
+    base_url=endpoint,
+    api_key=token_provider
+)</code></pre>
+
+<h4 id="part-4-send-a-chat-request">Part 4: Send a chat request</h4>
+
+<p>This part sends one user message to the deployment and prints the assistant response.</p>
+
+<pre><code class="language-python">completion = client.chat.completions.create(
+    model=deployment_name,
+    messages=[
+        {
+            "role": "user",
+            "content": "What is the capital of France?",
+        }
+    ],
+)
+
+print(completion.choices[0].message.content)</code></pre>
+
+<ol>
+  <li>Run Azure sign-in in your terminal:
+    <pre><code class="language-powershell">az login</code></pre>
+  </li>
+  <li>Create <code>chat_app.py</code>, combine the code from Parts 1 to 4, and save.</li>
+  <li>Run the script:
+    <pre><code class="language-powershell">python chat_app.py</code></pre>
+  </li>
+  <li>Expected output: a short answer such as <strong>Paris</strong>.</li>
+</ol>
+
+<h3 id="optional-env-based-version">Optional: use values from .env inside Python</h3>
+
+<p>If you prefer not to hardcode endpoint and deployment values in source code, use this version:</p>
+
+<pre><code class="language-python">import os
+from dotenv import load_dotenv
+from openai import OpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+load_dotenv()
+
+endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
+deployment_name = os.environ["AZURE_OPENAI_DEPLOYMENT"]
+token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://ai.azure.com/.default")
+
+client = OpenAI(base_url=endpoint, api_key=token_provider)
+
+completion = client.chat.completions.create(
+    model=deployment_name,
+    messages=[{"role": "user", "content": "What is the capital of France?"}],
+)
+
+print(completion.choices[0].message.content)</code></pre>
+
+<h2 id="summary">Summary</h2>
+
+<p>In this exercise, you created a Foundry project, used the <strong>New Foundry</strong> agent flow to get an automatic model deployment, captured deployment settings, created a local <code>.env</code> file, wrote a Python app in clear code blocks, and ran it with the OpenAI SDK.</p>
+
+<h2 id="clean-up">Clean up</h2>
+
+<p>If you’ve finished exploring Microsoft Foundry, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.</p>
+
+<ol>
+  <li>Open the <a href="https://portal.azure.com">Azure portal</a> and view the contents of the resource group where you deployed the resources used in this exercise.</li>
+  <li>On the toolbar, select <strong>Delete resource group</strong>.</li>
+  <li>Enter the resource group name and confirm that you want to delete it.</li>
+</ol>
+
+            </article>
+        </main>
+    </div>
+    <footer class="fixed-bottom d-print-none">
+        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
+            <span class="navbar-text">
+                &copy; 2025 Microsoft &nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="ml-2">
+                    Source
+                </a>
+            </span>
+        </nav>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="/mslearn-ai-studio/assets/js/script.js?v=bb2ee0659192e2b709180664179aa949f1110420"></script>
+</body>
+
+</html>
