@@ -199,6 +199,36 @@ client = OpenAI(
 
 print(completion.choices[0].message.content)</code></pre>
 
+<h4 id="chat-completions-complete-code">Complete code (<code>chat_app.py</code>)</h4>
+
+<pre><code class="language-python">from openai import OpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+endpoint = "https://YOUR-RESOURCE.services.ai.azure.com/openai/v1"
+deployment_name = "YOUR_DEPLOYMENT_NAME"
+
+token_provider = get_bearer_token_provider(
+  DefaultAzureCredential(),
+  "https://ai.azure.com/.default"
+)
+
+client = OpenAI(
+  base_url=endpoint,
+  api_key=token_provider
+)
+
+completion = client.chat.completions.create(
+  model=deployment_name,
+  messages=[
+    {
+      "role": "user",
+      "content": "What is the capital of France?",
+    }
+  ],
+)
+
+print(completion.choices[0].message.content)</code></pre>
+
 <ol>
   <li>Run Azure sign-in in your terminal:
     <pre><code class="language-powershell">az login</code></pre>
@@ -276,6 +306,47 @@ openai_client = OpenAI(
 
 <pre><code class="language-python">if __name__ == "__main__":
     chat_with_model()</code></pre>
+
+<h4 id="responses-complete-code">Complete code (<code>response.py</code>)</h4>
+
+<pre><code class="language-python">from openai import OpenAI
+
+# Use values from your Foundry/Azure portal
+azure_openai_endpoint = "https://YOUR-RESOURCE.openai.azure.com/openai/v1"
+api_key = "YOUR_API_KEY"
+model_deployment = "YOUR_DEPLOYMENT_NAME"
+
+openai_client = OpenAI(
+  base_url=azure_openai_endpoint,
+  api_key=api_key,
+  default_headers={"api-key": api_key}
+)
+
+def chat_with_model():
+  print("--- Chatting with model using Responses API (Type 'quit' to exit) ---")
+  last_response_id = None
+
+  while True:
+    input_text = input("\\nYou: ")
+    if input_text.lower() in ["quit", "exit"]:
+      break
+
+    try:
+      response = openai_client.responses.create(
+        model=model_deployment,
+        instructions="You are a helpful AI assistant that answers questions and provides information.",
+        input=input_text,
+        previous_response_id=last_response_id,
+      )
+
+      print(f"Assistant: {response.output_text}")
+      last_response_id = response.id
+
+    except Exception as e:
+      print(f"Error occurred: {e}")
+
+if __name__ == "__main__":
+  chat_with_model()</code></pre>
 
 <ol>
   <li>Save the file as <code>response.py</code>.</li>
