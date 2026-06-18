@@ -8,88 +8,45 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script>hljs.highlightAll();</script>
   <style>
-    body {
-      margin: 0;
-      padding: 40px;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: #f8fafc;
-      color: #0f172a;
-      line-height: 1.6;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 40px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-    }
+    body { margin: 0; padding: 40px; font-family: "Segoe UI", Arial, sans-serif; background: #f8fafc; color: #0f172a; line-height: 1.6; }
+    .container { max-width: 900px; margin: 0 auto; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 14px; padding: 40px; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08); }
     h1, h2, h3 { color: #1e293b; }
     h1 { border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
     h2 { margin-top: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;}
-    pre {
-      background: #282c34;
-      padding: 15px;
-      border-radius: 8px;
-      overflow-x: auto;
-    }
+    pre { background: #282c34; padding: 15px; border-radius: 8px; overflow-x: auto; margin-bottom: 20px;}
     code { font-family: "Fira Code", Consolas, monospace; }
-    .alert {
-      padding: 15px;
-      background: #e0f2fe;
-      border-left: 5px solid #0284c7;
-      margin: 20px 0;
-      border-radius: 4px;
-    }
-    .note {
-      font-weight: bold;
-    }
+    .alert { padding: 15px; background: #e0f2fe; border-left: 5px solid #0284c7; margin: 20px 0; border-radius: 4px; }
+    .note { font-weight: bold; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Exercise 5: Develop an Azure AI Chat Agent with Tool Calling</h1>
     
-    <p>In this exercise, you'll use the Microsoft Agent Framework to create an AI agent that processes expense claims using a custom "submit_claim" tool function.</p>
-
     <div class="alert">
-      <span class="note">Note:</span> Your instructor will provide you with the Azure OpenAI <code>PROJECT_ENDPOINT</code>, <code>API_KEY</code>, and <code>MODEL_DEPLOYMENT_NAME</code>. You do <strong>not</strong> need to create any Azure resources yourself for this exercise.
+      <span class="note">Note:</span> Your instructor will provide you with the <code>PROJECT_ENDPOINT</code>, <code>API_KEY</code>, and <code>MODEL_DEPLOYMENT_NAME</code>. Do not create any Azure resources yourself.
     </div>
 
-    <h2>Step 1: Setup the Python Environment</h2>
-    <p>Create a new directory for your project and set up a Python virtual environment.</p>
-    <pre><code class="language-bash">mkdir agent-framework-lab
-cd agent-framework-lab
-python -m venv labenv
-
-# Activate the environment (Windows)
-.\labenv\Scripts\Activate.ps1
-# Activate the environment (Mac/Linux)
-# source labenv/bin/activate</code></pre>
-
-    <p>Create a file named <code>requirements.txt</code> with the following dependencies and install them:</p>
+    <h2>Step 1: Setup Environment and Files</h2>
+    <p>Create a directory, set up a virtual environment, and install dependencies. Create a <code>requirements.txt</code> file:</p>
     <pre><code class="language-text">python-dotenv
 azure-identity
 agent-framework==1.0.0b260212
 opentelemetry-semantic-conventions-ai==0.4.13</code></pre>
-    <pre><code class="language-bash">pip install -r requirements.txt</code></pre>
 
-    <h2>Step 2: Setup Environment Variables</h2>
-    <p>Create a file named <code>.env</code> in your project directory and add the credentials provided by your instructor:</p>
+    <p>Create a <code>.env</code> file with the credentials provided by your instructor:</p>
     <pre><code class="language-ini">PROJECT_ENDPOINT=https://your-provided-endpoint.openai.azure.com
 MODEL_DEPLOYMENT_NAME=gpt-4.1
 API_KEY=your-provided-api-key</code></pre>
 
-    <h2>Step 3: Create the Expenses Data File</h2>
-    <p>The agent will read an expenses text file to process the claim. Create a file named <code>data.txt</code> in the same directory and paste the following content:</p>
+    <p>Create a <code>data.txt</code> file to hold the expenses:</p>
     <pre><code class="language-csv">date,description,amount
 07-Mar-2025,taxi,24.00
 07-Mar-2025,dinner,65.50
 07-Mar-2025,hotel,125.90</code></pre>
 
-    <h2>Step 4: Create the Agent Code</h2>
-    <p>Create a file named <code>agent-framework.py</code> and paste the following code. Take a moment to read the code, particularly the <code>submit_claim</code> tool and the instructions passed to the Agent.</p>
+    <h2>Step 2: Add Imports to the Script</h2>
+    <p>Create a file named <code>agent-framework.py</code>. Open it and add the required imports:</p>
     <pre><code class="language-python">import os
 import asyncio
 from pathlib import Path
@@ -102,27 +59,22 @@ from pydantic import Field
 from typing import Annotated
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()</code></pre>
 
-async def main():
-    # Clear the console
-    os.system('cls' if os.name=='nt' else 'clear')
+    <h2>Step 3: Add the Tool Function</h2>
+    <p>In the same file, add the <code>submit_claim</code> function. This is the tool our Agent will use to send an email:</p>
+    <pre><code class="language-python">@tool(approval_mode="never_require")
+def submit_claim(
+    to: Annotated[str, Field(description="Who to send the email to")],
+    subject: Annotated[str, Field(description="The subject of the email.")],
+    body: Annotated[str, Field(description="The text body of the email.")]):
+        print("\nTo:", to)
+        print("Subject:", subject)
+        print(body, "\n")</code></pre>
 
-    # Load the expenses data file
-    script_dir = Path(__file__).parent
-    file_path = script_dir / 'data.txt'
-    with file_path.open('r') as file:
-        data = file.read() + "\n"
-
-    # Ask for a prompt
-    user_prompt = input(f"Here is the expenses data in your file:\n\n{data}\n\nWhat would you like me to do with it?\n\n")
-    
-    # Run the async agent code
-    await process_expenses_data(user_prompt, data)
-    
-async def process_expenses_data(prompt, expenses_data):
-
-    # Create a client and initialize an agent with the tool and instructions
+    <h2>Step 4: Create the Agent Logic</h2>
+    <p>Below the tool function, add the <code>process_expenses_data</code> function which configures the client and invokes the Agent:</p>
+    <pre><code class="language-python">async def process_expenses_data(prompt, expenses_data):
     api_key = os.getenv("API_KEY")
     if api_key:
         client = AzureOpenAIResponsesClient(
@@ -147,37 +99,32 @@ async def process_expenses_data(prompt, expenses_data):
              tools=[submit_claim],
          ) as agent,
      ):
-
-        # Use the agent to process the expenses data    
         try:
-            # Add the input prompt to a list of messages to be submitted
             prompt_messages = [f"{prompt}: {expenses_data}"]
-            # Invoke the agent for the specified thread with the messages
             response = await agent.run(prompt_messages)
-            # Display the response
             print(f"\n# Agent:\n{response}")
         except Exception as e:
-            # Something went wrong
-            print(e)
+            print(e)</code></pre>
 
-# Create a tool function for the email functionality
-@tool(approval_mode="never_require")
-def submit_claim(
-    to: Annotated[str, Field(description="Who to send the email to")],
-    subject: Annotated[str, Field(description="The subject of the email.")],
-    body: Annotated[str, Field(description="The text body of the email.")]):
-        print("\nTo:", to)
-        print("Subject:", subject)
-        print(body, "\n")
+    <h2>Step 5: Create the Main Loop</h2>
+    <p>Add the main entry point to load the data and start the interaction:</p>
+    <pre><code class="language-python">async def main():
+    os.system('cls' if os.name=='nt' else 'clear')
 
+    script_dir = Path(__file__).parent
+    file_path = script_dir / 'data.txt'
+    with file_path.open('r') as file:
+        data = file.read() + "\n"
+
+    user_prompt = input(f"Here is the expenses data in your file:\n\n{data}\n\nWhat would you like me to do with it?\n\n")
+    await process_expenses_data(user_prompt, data)
+    
 if __name__ == "__main__":
     asyncio.run(main())</code></pre>
 
-    <h2>Step 5: Run the Agent</h2>
-    <p>Run your agent from the terminal. When it prompts you for what to do with the data, enter: <strong>Submit an expense claim</strong></p>
+    <h2>Step 6: Run the Agent</h2>
+    <p>Run your agent from the terminal. When prompted, type: <strong>Submit an expense claim</strong></p>
     <pre><code class="language-bash">python agent-framework.py</code></pre>
-
-    <p>Observe the output. The agent should calculate the total, use the <code>submit_claim</code> tool to generate the email payload, and print it to your console!</p>
 
   </div>
 </body>
