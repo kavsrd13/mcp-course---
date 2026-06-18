@@ -1,57 +1,333 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exercise 7</title>
-  <style>
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      font-family: "Segoe UI", Arial, sans-serif;
-      background: linear-gradient(135deg, #eff6ff, #f0fdfa);
-      color: #0f172a;
-    }
+    <head>
+        <title>
+            Create a knowledge mining solution | 
+            
+            Develop AI-powered information extraction solutions in Azure
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <link rel="stylesheet" href="/mslearn-ai-information-extraction/assets/css/style.css?v=35d2d13d9b754f150857b69692d84f091c37f8db">
+    </head>
+    <body data-spy="scroll" data-target="#linksMenu">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+        <div class="container d-flex justify-content-between">
+            <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
+            <span class="my-1 title text-black">Develop AI-powered information extraction solutions in Azure</span>
+            <span class="ml-2">
+                <a href="https://microsoftlearning.github.io/mslearn-ai-information-extraction" class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    &nbsp;Home
+                </a>
+            </span>
+        </div>
+        <!--
+        <div class="container d-flex justify-content-between">
+            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-information-extraction">
+                Develop AI-powered information extraction solutions in Azure
+            </a>
+            <a href="https://github.com/MicrosoftLearning/mslearn-ai-information-extraction" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <span class="ml-2">GitHub</span>
+            </a>
+        </div>
+        -->
+    </nav>
+    <hr color-"gray"/>
+    <div class="container">
+        <main class="row extra-padding">
+            <aside class="col-sm-2">       
+                <nav id="linksMenu" class="toc sticky-top">
+                    <ul class="nav navbar-nav flex-column">
+                    </ul>
+                </nav>         
+            </aside>
+            <hr class="" />
+            <article class="col-sm-10 mb-5">
+                <h1 id="create-a-knowledge-mining-solution">Create a knowledge mining solution</h1>
 
-    .card {
-      width: min(720px, 92vw);
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 14px;
-      padding: 24px;
-      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
-    }
+<p>In this exercise, you use Azure AI Search to create a knowledge mining solution that indexes a set of travel brochure documents. The indexing process uses AI skills to extract key information from the documents, and you’ll create a Python client application to search the index.</p>
 
-    h1 { margin-top: 0; }
+<p>This exercise takes approximately <strong>40</strong> minutes.</p>
 
-    a {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      background: #0f766e;
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-    }
-  </style>
-</head>
-<body>
-  <main class="card">
-    <h1>Exercise 7: Create a Knowledge Mining Solution</h1>
-    <p>This exercise is hosted on Microsoft Learn.</p>
-    <a href="https://microsoftlearning.github.io/mslearn-ai-information-extraction/Instructions/Exercises/04-knowledge-mining.html" target="_blank" rel="noopener noreferrer">Open Exercise 7</a>
+<h2 id="create-azure-resources">Create Azure resources</h2>
 
-    <div style="margin-top: 30px; padding: 20px; background-color: #f8fafc; border-left: 4px solid #0f766e; border-radius: 8px;">
-      <h2 style="margin-top: 0; font-size: 1.25rem; color: #0f766e;">Get the endpoint and keys for your search resource</h2>
-      <p>Now that you have a useful index, you can query it from a Python client application using the Azure AI Search SDK.</p>
-      <ol style="margin-bottom: 0; padding-left: 20px;">
-        <li style="margin-bottom: 8px;">In the Azure portal, return to the <strong>Overview</strong> page for your Azure AI Search resource. Note the <strong>Url</strong> value (e.g., <code>https://your_resource_name.search.windows.net</code>). This is the endpoint for your search resource.</li>
-        <li>In the navigation pane on the left, expand <strong>Settings</strong> and view the <strong>Keys</strong> page. Note the <strong>query key</strong> &mdash; you&rsquo;ll need this for your client application.</li>
-      </ol>
+<p>The solution requires multiple resources in your Azure subscription, all created in the same region.</p>
+
+<h3 id="create-an-azure-ai-search-resource">Create an Azure AI Search resource</h3>
+
+<ol>
+  <li>In a web browser, open the <a href="https://portal.azure.com">Azure portal</a> at <code>https://portal.azure.com</code> and sign in with your Azure credentials.</li>
+  <li>Select the <strong>＋Create a resource</strong> button, search for <code>Azure AI Search</code>, and create an <strong>Azure AI Search</strong> resource with the following settings:
+    <ul>
+      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
+      <li><strong>Resource group</strong>: <em>Create or select a resource group</em></li>
+      <li><strong>Service name</strong>: <em>A valid name for your search resource</em></li>
+      <li><strong>Location</strong>: <em>Any available location</em></li>
+      <li><strong>Pricing tier</strong>: Free</li>
+    </ul>
+  </li>
+  <li>Wait for deployment to complete, and then go to the deployed resource.</li>
+  <li>Review the <strong>Overview</strong> page. Here you can use a visual interface to create, test, manage, and monitor the various components of a search solution.</li>
+</ol>
+
+<h3 id="create-a-storage-account">Create a storage account</h3>
+
+<ol>
+  <li>Return to the Azure portal home page and create a <strong>Storage account</strong> resource with the following settings:
+    <ul>
+      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
+      <li><strong>Resource group</strong>: <em>The same resource group as your Azure AI Search resource</em></li>
+      <li><strong>Storage account name</strong>: <em>A valid name for your storage resource</em></li>
+      <li><strong>Region</strong>: <em>The same region as your Azure AI Search resource</em></li>
+      <li><strong>Primary service</strong>: Azure Blob Storage or Azure Data Lake Storage Gen 2</li>
+      <li><strong>Performance</strong>: Standard</li>
+      <li><strong>Redundancy</strong>: Locally-redundant storage (LRS)</li>
+    </ul>
+  </li>
+  <li>Wait for deployment to complete, and then go to the deployed resource.</li>
+</ol>
+
+<h2 id="upload-documents-to-azure-storage">Upload documents to Azure Storage</h2>
+
+<p>Your knowledge mining solution will extract information from travel brochure documents stored in Azure Blob Storage.</p>
+
+<ol>
+  <li>In a new browser tab, download <a href="https://github.com/microsoftlearning/mslearn-ai-information-extraction/raw/main/Labfiles/knowledge/documents.zip">documents.zip</a> from <code>https://github.com/microsoftlearning/mslearn-ai-information-extraction/raw/main/Labfiles/knowledge/documents.zip</code> and save it to a local folder.</li>
+  <li>Extract the downloaded <em>documents.zip</em> file and view the travel brochure files it contains.</li>
+  <li>In the Azure portal, navigate to your storage account and select <strong>Storage browser</strong> in the navigation pane.</li>
+  <li>In the storage browser, select <strong>Blob containers</strong>.</li>
+  <li>In the toolbar, select <strong>+ Container</strong> and create a new container with the following settings:
+    <ul>
+      <li><strong>Name</strong>: <code>documents</code></li>
+      <li><strong>Anonymous access level</strong>: Private (no anonymous access)</li>
+    </ul>
+  </li>
+  <li>Select the <strong>documents</strong> container, and use the <strong>Upload</strong> toolbar button to upload the .pdf files you extracted from <strong>documents.zip</strong>.</li>
+</ol>
+
+<h2 id="create-and-run-an-indexer">Create and run an indexer</h2>
+
+<p>Now that you have the documents in place, you can create an indexer to use AI skills to extract information from them.</p>
+
+<ol>
+  <li>In the Azure portal, browse to your Azure AI Search resource. On its <strong>Overview</strong> page, select <strong>Import data</strong>.</li>
+  <li>On the <strong>Connect to your data</strong> page, in the <strong>Data Source</strong> list, select <strong>Azure Blob Storage</strong>.</li>
+  <li>
+    <p>Select <strong>keyword search</strong>. Then complete the data store details with the following values:</p>
+  </li>
+  <li>On <strong>Connect to your data</strong> form set the following:
+    <ul>
+      <li><strong>Storage account</strong>: <em>Your recently created storage account</em></li>
+      <li><strong>Blob container</strong>: Select the <strong>documents</strong> container.</li>
+      <li>Leave the remaining options as their default values, and then select <strong>Next</strong>.</li>
+    </ul>
+  </li>
+  <li>On <strong>Apply AI enrichments</strong> set the following:
+    <ul>
+      <li>Select <strong>Extract phrases</strong>.</li>
+      <li>Select <strong>Extract entities</strong>, select the settings icon, ensure only <strong>Persons</strong> and <strong>Locations</strong> are selected, and then select <strong>Save</strong>.</li>
+      <li>Select <strong>Extract text from images</strong>, select the settings icon, ensure <strong>Generate tags</strong> and <strong>Categorize content</strong> are selected, and then select <strong>Save</strong>.</li>
+      <li>If it isn’t already selected, choose the free Foundry Tools resource option, and then select <strong>Next</strong>.</li>
+    </ul>
+
+    <blockquote>
+      <p><strong>Note</strong>: The free Azure AI Services enrichment for Azure AI Search can be used to index a maximum of 20 documents. In a production solution, you should create and attach an Azure AI Services resource.</p>
+    </blockquote>
+  </li>
+  <li>On <strong>Preview mappings</strong> set the following configuration:
+    <ul>
+      <li>The fields are already mapped based on the options you selected in the previous step.</li>
+      <li>Review the following fields and ensure that they’re configured as shown in the following table. To update a field, select it and then select <strong>Configure field</strong>. Leave all other fields with their default settings.</li>
+    </ul>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Target index field name</th>
+          <th>Retrievable</th>
+          <th>Filterable</th>
+          <th>Sortable</th>
+          <th>Facetable</th>
+          <th>Searchable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>metadata_storage_size</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td> </td>
+          <td> </td>
+        </tr>
+        <tr>
+          <td>metadata_storage_last_modified</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td> </td>
+          <td> </td>
+        </tr>
+        <tr>
+          <td>title</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td> </td>
+          <td>✔</td>
+        </tr>
+        <tr>
+          <td>locations</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td> </td>
+          <td> </td>
+          <td>✔</td>
+        </tr>
+        <tr>
+          <td>persons</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td> </td>
+          <td> </td>
+          <td>✔</td>
+        </tr>
+        <tr>
+          <td>keyPhrases</td>
+          <td>✔</td>
+          <td>✔</td>
+          <td> </td>
+          <td> </td>
+          <td>✔</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <ul>
+      <li>Double-check your selections carefully.</li>
+      <li>Select <strong>Next</strong>.</li>
+    </ul>
+  </li>
+  <li>On <strong>Advanced settings</strong> set the following:
+    <ul>
+      <li>Ensure <strong>Enable semantic ranker</strong> is selected.</li>
+      <li>If it isn’t already selected, set <strong>Schedule</strong> to <strong>Once</strong>.</li>
+      <li>Select <strong>Next</strong>.</li>
+    </ul>
+  </li>
+  <li>On <strong>Review and create</strong> set <strong>Objects name prefix</strong> to <code>margies-index</code> and then select <strong>Create</strong>.</li>
+  <li>You may close the success notification.</li>
+  <li>In the navigation pane on the left, under <strong>Search management</strong>, view the <strong>Indexers</strong> page. The <strong>margies-index-indexer</strong> should appear. Wait a few minutes, and click <strong>&amp;orarr; Refresh</strong> until the <strong>Status</strong> indicates <strong>Success</strong>.</li>
+</ol>
+
+<h2 id="search-the-index">Search the index</h2>
+
+<p>Now that you have an index, you can search it.</p>
+
+<ol>
+  <li>Return to the <strong>Overview</strong> page for your Azure AI Search resource, and on the toolbar, select <strong>Search explorer</strong>.</li>
+  <li>
+    <p>In Search explorer, in the <strong>Query string</strong> box, enter <code>*</code> (a single asterisk) and then select <strong>Search</strong>.</p>
+
+    <p>This query retrieves all documents in the index in JSON format. Examine the results and note the fields for each document, which include document content, metadata, and enriched data extracted by the cognitive skills.</p>
+  </li>
+  <li>
+    <p>In the <strong>View</strong> menu, select <strong>JSON view</strong> and note that the JSON request for the search is shown:</p>
+
+    <pre><code class="language-json"> {
+   "search": "*",
+   "count": true
+ }
+</code></pre>
+  </li>
+  <li>
+    <p>The results include a <strong>@odata.count</strong> field at the top of the results that indicates the number of documents returned by the search.</p>
+  </li>
+  <li>
+    <p>Modify the JSON request to include a <strong>select</strong> parameter:</p>
+
+    <pre><code class="language-json"> {
+   "search": "*",
+   "count": true,
+   "select": "title,locations"
+ }
+</code></pre>
+
+    <pre><code> This time the results include only the file name and any locations mentioned in the document content. The file name is in the **title** field. The **locations** field was generated by an AI skill.
+</code></pre>
+  </li>
+  <li>
+    <p>Try the following query string:</p>
+
+    <pre><code class="language-json"> {
+   "search": "New York",
+   "count": true,
+   "select": "title,keyPhrases"
+ }
+</code></pre>
+
+    <p>This search finds documents that mention “New York” in any searchable field, and returns the file name and key phrases.</p>
+  </li>
+  <li>
+    <p>Try one more query:</p>
+
+    <pre><code class="language-json"> {
+     "search": "New York",
+     "count": true,
+     "select": "title,keyPhrases",
+     "filter": "metadata_storage_size lt 380000"
+ }
+</code></pre>
+
+    <p>This returns documents mentioning “New York” that are smaller than 380,000 bytes.</p>
+  </li>
+</ol>
+
+<h2 id="create-a-search-client-application">Create a search client application</h2>
+
+<p>Now that you have a useful index, you can query it from a Python client application using the Azure AI Search SDK.</p>
+
+<h3 id="get-the-endpoint-and-keys">Get the endpoint and keys for your search resource</h3>
+<ol>
+  <li>In the Azure portal, return to the <strong>Overview</strong> page for your Azure AI Search resource. Note the <strong>Url</strong> value (e.g., <code>https://your_resource_name.search.windows.net</code>). This is the endpoint for your search resource.</li>
+  <li>In the navigation pane on the left, expand <strong>Settings</strong> and view the <strong>Keys</strong> page. Note the <strong>query key</strong> &mdash; you&rsquo;ll need this for your client application.</li>
+</ol>
+
+            </article>
+        </main>
     </div>
-  </main>
+    <footer class="fixed-bottom d-print-none">
+        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
+            <span class="navbar-text">
+                &copy; 2025 Microsoft &nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/MicrosoftLearning/mslearn-ai-information-extraction" target="_blank" class="ml-2">
+                    Source
+                </a>
+            </span>
+        </nav>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="/mslearn-ai-information-extraction/assets/js/script.js?v=35d2d13d9b754f150857b69692d84f091c37f8db"></script>
 </body>
+
 </html>
