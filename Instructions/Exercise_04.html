@@ -1,427 +1,258 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <title>
-            Create a generative AI chat app | 
-            
-            Develop generative AI solutions in Azure
-        </title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-        <script>hljs.initHighlightingOnLoad();</script>
-        <link rel="stylesheet" href="/mslearn-ai-studio/assets/css/style.css?v=bb2ee0659192e2b709180664179aa949f1110420">
-    </head>
-    <body data-spy="scroll" data-target="#linksMenu">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
-        <div class="container d-flex justify-content-between">
-            <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
-            <span class="my-1 title text-black">Develop generative AI solutions in Azure</span>
-            <span class="ml-2">
-                <a href="https://microsoftlearning.github.io/mslearn-ai-studio" class="d-flex align-items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
-                    </svg>
-                    &nbsp;Home
-                </a>
-            </span>
-        </div>
-        <!--
-        <div class="container d-flex justify-content-between">
-            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-studio">
-                Develop generative AI solutions in Azure
-            </a>
-            <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
-                <i class="fa fa-github" aria-hidden="true"></i>
-                <span class="ml-2">GitHub</span>
-            </a>
-        </div>
-        -->
-    </nav>
-    <hr color-"gray"/>
-    <div class="container">
-        <main class="row extra-padding">
-            <aside class="col-sm-2">       
-                <nav id="linksMenu" class="toc sticky-top">
-                    <ul class="nav navbar-nav flex-column">
-                    </ul>
-                </nav>         
-            </aside>
-            <hr class="" />
-            <article class="col-sm-10 mb-5">
-                <h1 id="create-a-generative-ai-chat-app">Create a generative AI chat app</h1>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise: Explore Transformer Pipelines in Google Colab</title>
+  <style>
+    :root{--blue:#2563eb;--navy:#172554;--ink:#25324a;--muted:#5d6b82;--line:#d9e1ec;--soft:#f5f8fc;--tip:#ecfdf5;--warn:#fff7ed;--hf:#ffbd19}
+    *{box-sizing:border-box}body{margin:0;font:16px/1.65 "Segoe UI",Arial,sans-serif;color:var(--ink);background:#fff}
+    header{background:var(--navy);color:#fff;padding:18px 24px}header div,main{max-width:1020px;margin:auto}header div{font-weight:650}
+    main{padding:44px 24px 80px}h1{font-size:2.35rem;line-height:1.15;color:#10214b;margin:0 0 12px}
+    h2{margin-top:50px;padding-bottom:8px;border-bottom:1px solid var(--line);color:#163a78}h3{margin-top:32px;color:#244a86}
+    a{color:#075fc8}.lead{font-size:1.15rem;color:var(--muted)}.meta{display:flex;gap:12px;flex-wrap:wrap;margin:22px 0 28px}
+    .pill{background:#eaf2ff;color:#164a96;border-radius:999px;padding:6px 12px;font-weight:600}
+    .box{border-left:5px solid var(--blue);background:var(--soft);padding:16px 20px;margin:22px 0}
+    .tip{border-color:#16a36a;background:var(--tip)}.warn{border-color:#f08c2e;background:var(--warn)}.hf{border-color:var(--hf);background:#fffbea}
+    .code{position:relative;margin:18px 0 26px}.label{background:#26364d;color:#fff;padding:7px 12px;border-radius:7px 7px 0 0;font-size:.85rem}
+    pre{margin:0;background:#111827;color:#e7edf6;padding:18px;overflow:auto;border-radius:0 0 7px 7px;font:14px/1.55 Consolas,monospace}
+    code{font-family:Consolas,monospace}button{position:absolute;right:9px;top:38px;border:1px solid #7890ad;background:#fff;color:#17345f;border-radius:5px;padding:5px 9px;cursor:pointer}
+    li{margin:8px 0}table{width:100%;border-collapse:collapse;margin:20px 0}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#edf3fb}
+    .summary{background:#eaf2ff;padding:22px;border-radius:10px;margin-top:44px}.task{display:inline-block;background:#fff1c2;color:#624800;border-radius:5px;padding:2px 7px;font-weight:700}
+    @media print{header,button{display:none}main{max-width:none;padding:0}.code{break-inside:avoid}a{color:inherit}}
+  </style>
+</head>
+<body>
+<header><div>AI Teaching Labs &nbsp; / &nbsp; Exercise 5</div></header>
+<main>
+  <h1>Explore Transformer pipelines in Google Colab</h1>
+  <p class="lead">Use Hugging Face Transformers to solve common text, image, and audio tasks with the high-level <code>pipeline()</code> API.</p>
+  <div class="meta"><span class="pill">Beginner</span><span class="pill">60-75 minutes</span><span class="pill">Google Colab</span></div>
 
-<p>In this exercise, you use the OpenAI SDK to build chat apps with both the <em>Chat Completions</em> API and the <em>Responses</em> API against a model deployed in a Microsoft Foundry project.</p>
+  <div class="box hf"><strong>Based on:</strong> Hugging Face LLM Course, <a href="https://huggingface.co/learn/llm-course/chapter1/3" target="_blank" rel="noreferrer">Transformers, what can they do?</a>. This exercise reorganizes the concepts into a guided Colab lab.</div>
 
-<p>This exercise takes approximately <strong>45</strong> minutes.</p>
+  <h2>Learning objectives</h2>
+  <p>After completing this exercise, you will be able to:</p>
+  <ul>
+    <li>Explain how a pipeline combines preprocessing, model inference, and postprocessing.</li>
+    <li>Run sentiment analysis, zero-shot classification, text generation, mask filling, NER, summarization, and translation.</li>
+    <li>Select a specific model from the Hugging Face Hub.</li>
+    <li>Try image classification and automatic speech recognition as optional multimodal tasks.</li>
+  </ul>
 
-<blockquote>
-  <p><strong>Note</strong>: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.</p>
-</blockquote>
+  <h2>Prerequisites</h2>
+  <ul>
+    <li>A Google account that can open <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer">Google Colab</a>.</li>
+    <li>Basic Python familiarity: variables, lists, dictionaries, and function calls.</li>
+    <li>Internet access. The notebook downloads pretrained models from the Hugging Face Hub.</li>
+  </ul>
+  <div class="box warn"><strong>Download notice:</strong> The first run of each task may take several minutes because Colab must download a model. Later calls reuse the model cached in the current Colab session.</div>
 
-<h2 id="learning-objective">Learning objective</h2>
+  <h2>1. Create the Google Colab notebook</h2>
+  <ol>
+    <li>Open <a href="https://colab.research.google.com/" target="_blank" rel="noreferrer">Google Colab</a>.</li>
+    <li>Select <strong>New notebook</strong>.</li>
+    <li>Select the notebook title, such as <code>Untitled0.ipynb</code>, and rename it <code>transformers_pipeline_exercise.ipynb</code>.</li>
+    <li>Choose <strong>File &gt; Save a copy in Drive</strong> if you want the notebook stored in Google Drive.</li>
+    <li>For faster model inference, choose <strong>Runtime &gt; Change runtime type</strong>, select a <strong>T4 GPU</strong> if available, and select <strong>Save</strong>.</li>
+  </ol>
+  <div class="box tip"><strong>Colab workflow:</strong> Each code block below is one notebook cell. Select <strong>+ Code</strong>, paste the block, then run it with the play button or <code>Shift+Enter</code>. Run cells in order.</div>
 
-<p>In this lab, you will learn:</p>
+  <h2>2. Install the libraries</h2>
+  <p>Create the first code cell and run:</p>
+  <div class="code"><div class="label">Colab cell 1 - Install packages</div><button>Copy</button><pre><code>!pip install -q transformers sentencepiece sacremoses pillow requests</code></pre></div>
+  <p>Colab already includes PyTorch. The extra packages support Transformers, translation tokenizers, images, and downloaded media.</p>
 
-<ul>
-  <li>How to call the <strong>Chat Completions API</strong> for message-based chat prompts.</li>
-  <li>How to call the <strong>Responses API</strong> for instruction/input style requests with response tracking.</li>
-  <li>The practical differences between these two API styles and when to use each.</li>
-</ul>
+  <h2>3. Import pipeline and select the device</h2>
+  <div class="code"><div class="label">Colab cell 2 - Imports and device</div><button>Copy</button><pre><code>import torch
+from transformers import pipeline
 
-<h2 id="prerequisites">Prerequisites</h2>
+device = 0 if torch.cuda.is_available() else -1
+print("Using:", "GPU" if device == 0 else "CPU")</code></pre></div>
+  <div class="box"><strong>How a pipeline works:</strong> It converts input into model-ready values, runs the model, and converts raw predictions into readable Python dictionaries or text.</div>
 
-<p>Before starting this exercise, ensure you have:</p>
-
-<ul>
-  <li>An active <a href="https://azure.microsoft.com/pricing/purchase-options/azure-account">Azure subscription</a></li>
-  <li><a href="https://code.visualstudio.com/">Visual Studio Code</a> installed</li>
-  <li><a href="https://www.python.org/downloads/release/python-31312/">Python version <strong>3.13.xx</strong></a> installed*</li>
-  <li><a href="https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest">Azure CLI</a> installed</li>
-</ul>
-
-<blockquote>
-  <p>* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.</p>
-</blockquote>
-
-<h2 id="create-a-microsoft-foundry-project">Create a Microsoft Foundry project</h2>
-
-<p>Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.</p>
-
-<ol>
-  <li>
-    <p>In a web browser, open the <a href="https://ai.azure.com">Microsoft Foundry portal</a> at <code>https://ai.azure.com</code> and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.</p>
-  </li>
-  <li>If it is not already enabled, in the tool bar the top of the page, enable the <strong>New Foundry</strong> option. Then, if prompted, create a new project with a unique name; expanding the <strong>Advanced options</strong> area to specify the following settings for your project:
-    <ul>
-      <li><strong>Foundry resource</strong>: <em>Use the default name for your resource (usually {project_name}-resource)</em></li>
-      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
-      <li><strong>Resource group</strong>: <em>Create or select a resource group</em></li>
-      <li><strong>Region</strong>: Select any of the <strong>AI Foundry recommended</strong> regions in <strong target="_blank"><a href="https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability">this list</a></strong></li>
-    </ul>
-  </li>
-  <li>Wait for your project to be created. Then view its home page.</li>
-</ol>
-
-<h2 id="deploy-a-model">Deploy a model</h2>
-
-<p>In this version of the lab, you will create an agent in the <strong>New Foundry</strong> experience. When the agent is created, a model deployment is created automatically.</p>
-
-<ol>
-  <li>In the Foundry portal, ensure <strong>New Foundry</strong> is enabled.</li>
-  <li>Open the left navigation and select <strong>Agents</strong>.</li>
-  <li>Select <strong>+ New agent</strong> and create an agent with default settings.</li>
-  <li>Wait until agent creation finishes. A model deployment is created automatically for agent usage.</li>
-  <li>Go to <strong>Models</strong> and note the following values:
-    <ul>
-      <li><strong>Deployment name</strong> (use your own deployment name from the portal)</li>
-      <li><strong>Azure OpenAI endpoint</strong> (example format: <code>https://YOUR-RESOURCE.services.ai.azure.com/openai/v1</code>)</li>
-      <li><strong>API key</strong> (from your resource keys)</li>
-    </ul>
-  </li>
-</ol>
-
-<h2 id="create-a-client-application-to-chat-with-the-model">Create a client application to chat with the model</h2>
-
-<p>Now create the app files directly in Visual Studio Code so students can copy, paste, and run without cloning any repository.</p>
-
-<h3 id="create-the-local-project-files">Create the local project files</h3>
-
-<ol>
-  <li>Open Visual Studio Code and create a new folder for this lab (for example, <code>exercise-04-chat-app</code>).</li>
-  <li>Open a terminal in that folder.</li>
-  <li>Create and activate a virtual environment:
-    <pre><code class="language-powershell">python -m venv .venv
-.\.venv\Scripts\Activate.ps1</code></pre>
-  </li>
-  <li>Install required packages:
-    <pre><code class="language-powershell">pip install openai azure-identity python-dotenv</code></pre>
-  </li>
-  <li>Create a new file named <code>.env</code> in the folder and paste this template:</li>
-</ol>
-
-<pre><code class="language-bash">AZURE_OPENAI_ENDPOINT=https://YOUR-RESOURCE.services.ai.azure.com/openai/v1
-AZURE_OPENAI_API_KEY=YOUR_API_KEY
-AZURE_OPENAI_DEPLOYMENT=YOUR_DEPLOYMENT_NAME</code></pre>
-
-<p>Replace each placeholder with the values you noted from <strong>Models</strong> and the resource key page.</p>
-
-<h3 id="use-the-chatcompletions-api-to-chat-with-the-model">Use the <em>ChatCompletions</em> API to chat with the model</h3>
-
-<p>Create a new Python file named <code>chat_app.py</code>. Add the code in parts.</p>
-
-<h4 id="part-1-imports-and-authentication">Part 1: Imports and authentication</h4>
-
-<p>This part imports the OpenAI SDK and Azure identity helpers. <code>DefaultAzureCredential</code> allows Entra ID sign-in. The token provider gives OpenAI a bearer token for Azure AI.</p>
-
-<pre><code class="language-python">from openai import OpenAI
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider</code></pre>
-
-<h4 id="part-2-connection-settings">Part 2: Connection settings</h4>
-
-<p>This part sets the endpoint and deployment name. Students can paste direct values first and later switch to environment variable loading if needed.</p>
-
-<pre><code class="language-python">endpoint = "https://YOUR-RESOURCE.services.ai.azure.com/openai/v1"
-deployment_name = "YOUR_DEPLOYMENT_NAME"</code></pre>
-
-<h4 id="part-3-token-provider-and-client">Part 3: Token provider and client</h4>
-
-<p>This part creates an Entra token provider and initializes the OpenAI client for Azure endpoint access.</p>
-
-<pre><code class="language-python">token_provider = get_bearer_token_provider(
-    DefaultAzureCredential(),
-    "https://ai.azure.com/.default"
+  <h2>4. Sentiment analysis</h2>
+  <p>Sentiment analysis classifies text as positive or negative and returns a confidence score.</p>
+  <div class="code"><div class="label">Colab cell 3 - Sentiment analysis</div><button>Copy</button><pre><code>sentiment = pipeline(
+    "sentiment-analysis",
+    model="distilbert/distilbert-base-uncased-finetuned-sst-2-english",
+    device=device,
 )
 
-client = OpenAI(
-    base_url=endpoint,
-    api_key=token_provider
-)</code></pre>
+sentiment("I enjoyed learning how Transformer pipelines work.")</code></pre></div>
+  <p>The result should be a list containing a label such as <code>POSITIVE</code> and a score between 0 and 1.</p>
+  <p>Pass multiple sentences in one call:</p>
+  <div class="code"><div class="label">Colab cell 4 - Batch input</div><button>Copy</button><pre><code>sentiment([
+    "The explanations were clear and helpful.",
+    "I found this lesson frustrating and confusing.",
+])</code></pre></div>
+  <p><span class="task">Try it</span> Replace both sentences with feedback from your own class or project.</p>
 
-<h4 id="part-4-send-a-chat-request">Part 4: Send a chat request</h4>
-
-<p>This part sends one user message to the deployment and prints the assistant response.</p>
-
-<pre><code class="language-python">completion = client.chat.completions.create(
-    model=deployment_name,
-    messages=[
-        {
-            "role": "user",
-            "content": "What is the capital of France?",
-        }
-    ],
+  <h2>5. Zero-shot classification</h2>
+  <p>Zero-shot classification lets you supply labels at inference time instead of training a classifier for those exact categories.</p>
+  <div class="code"><div class="label">Colab cell 5 - Zero-shot classification</div><button>Copy</button><pre><code>zero_shot = pipeline(
+    "zero-shot-classification",
+    model="facebook/bart-large-mnli",
+    device=device,
 )
 
-print(completion.choices[0].message.content)</code></pre>
+zero_shot(
+    "This lesson explains how to use pretrained language models.",
+    candidate_labels=["education", "business", "sports", "politics"],
+)</code></pre></div>
+  <p>Inspect the order of <code>labels</code> and their <code>scores</code>. The highest-scoring label should be related to education.</p>
+  <div class="box tip"><strong>Teaching point:</strong> “Zero-shot” means the model was not fine-tuned using your exact list of labels. The labels are part of the request.</div>
 
-<h4 id="chat-completions-complete-code">Complete code (<code>chat_app.py</code>)</h4>
-
-<pre><code class="language-python">from openai import OpenAI
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-
-endpoint = "https://YOUR-RESOURCE.services.ai.azure.com/openai/v1"
-deployment_name = "YOUR_DEPLOYMENT_NAME"
-
-token_provider = get_bearer_token_provider(
-  DefaultAzureCredential(),
-  "https://ai.azure.com/.default"
+  <h2>6. Text generation with a Hub model</h2>
+  <p>Create a generation pipeline using the compact <code>HuggingFaceTB/SmolLM2-360M</code> model.</p>
+  <div class="code"><div class="label">Colab cell 6 - Text generation</div><button>Copy</button><pre><code>generator = pipeline(
+    "text-generation",
+    model="HuggingFaceTB/SmolLM2-360M",
+    device=device,
 )
 
-client = OpenAI(
-  base_url=endpoint,
-  api_key=token_provider
+generator(
+    "In this course, students will learn how to",
+    max_new_tokens=30,
+    num_return_sequences=2,
+    do_sample=True,
+    temperature=0.8,
+)</code></pre></div>
+  <p>You should receive two completions. Their wording may differ each time because sampling introduces randomness.</p>
+  <p><span class="task">Try it</span> Change <code>temperature</code> to <code>0.2</code>, rerun the cell, and compare how conservative the output becomes.</p>
+
+  <h2>7. Fill a masked word</h2>
+  <p>A fill-mask model predicts likely words for a special mask token.</p>
+  <div class="code"><div class="label">Colab cell 7 - Mask filling</div><button>Copy</button><pre><code>unmasker = pipeline(
+    "fill-mask",
+    model="FacebookAI/roberta-base",
+    device=device,
 )
 
-completion = client.chat.completions.create(
-  model=deployment_name,
-  messages=[
-    {
-      "role": "user",
-      "content": "What is the capital of France?",
-    }
-  ],
+unmasker(
+    "Transformer models can solve many &lt;mask&gt; tasks.",
+    top_k=3,
+)</code></pre></div>
+  <p>The result contains three candidate sequences, token strings, and scores.</p>
+  <div class="box warn"><strong>Model-specific token:</strong> RoBERTa uses <code>&lt;mask&gt;</code>. Other model families may use a different mask token, so check the model card or tokenizer.</div>
+
+  <h2>8. Named entity recognition</h2>
+  <p>Named entity recognition identifies spans representing people, organizations, locations, and other entity types.</p>
+  <div class="code"><div class="label">Colab cell 8 - Named entity recognition</div><button>Copy</button><pre><code>ner = pipeline(
+    "ner",
+    model="dslim/bert-base-NER",
+    aggregation_strategy="simple",
+    device=device,
 )
 
-print(completion.choices[0].message.content)</code></pre>
+ner("Asha works for Microsoft in Bengaluru and visits London in July.")</code></pre></div>
+  <p>Look for entity groups such as <code>PER</code>, <code>ORG</code>, and <code>LOC</code>. The aggregation strategy combines subword pieces into readable entities.</p>
 
-<ol>
-  <li>Run Azure sign-in in your terminal:
-    <pre><code class="language-powershell">az login</code></pre>
-  </li>
-  <li>Create <code>chat_app.py</code>, combine the code from Parts 1 to 4, and save.</li>
-  <li>Run the script:
-    <pre><code class="language-powershell">python chat_app.py</code></pre>
-  </li>
-  <li>Expected output: a short answer such as <strong>Paris</strong>.</li>
-</ol>
-
-<h3 id="api-differences">Chat Completions vs Responses API</h3>
-
-<p>Before writing the second file, review the API differences:</p>
-
-<ul>
-  <li><strong>Chat Completions</strong>: Uses a <code>messages</code> array with explicit roles like <code>system</code>, <code>user</code>, and <code>assistant</code>.</li>
-  <li><strong>Responses</strong>: Uses <code>instructions</code> and <code>input</code>, and supports conversation continuation with <code>previous_response_id</code>.</li>
-  <li><strong>Use case</strong>: Chat Completions is ideal for explicit message control, while Responses is often simpler for workflow-driven prompt/response handling.</li>
-</ul>
-
-<h3 id="use-the-responses-api-with-response-py">Use the <em>Responses</em> API with <code>response.py</code></h3>
-
-<p>Create a new file named <code>response.py</code> and add the following code in parts.</p>
-
-<h4 id="response-part-1-client-config">Part 1: Client configuration</h4>
-
-<p>This part sets endpoint, API key, and deployment name for API key authentication.</p>
-
-<pre><code class="language-python">from openai import OpenAI
-
-# Use values from your Foundry/Azure portal
-azure_openai_endpoint = "https://YOUR-RESOURCE.openai.azure.com/openai/v1"
-api_key = "YOUR_API_KEY"
-model_deployment = "YOUR_DEPLOYMENT_NAME"
-
-openai_client = OpenAI(
-    base_url=azure_openai_endpoint,
-    api_key=api_key,
-    default_headers={"api-key": api_key}
-)</code></pre>
-
-<h4 id="response-part-2-chat-loop">Part 2: Build a chat loop</h4>
-
-<p>This part creates an interactive loop and tracks <code>last_response_id</code> to keep context between turns.</p>
-
-<pre><code class="language-python">def chat_with_model():
-    print("--- Chatting with model using Responses API (Type 'quit' to exit) ---")
-    last_response_id = None
-
-    while True:
-        input_text = input("\nYou: ")
-        if input_text.lower() in ["quit", "exit"]:
-            break</code></pre>
-
-<h4 id="response-part-3-call-responses-api">Part 3: Call the Responses API</h4>
-
-<p>This part sends the request using <code>instructions</code>, <code>input</code>, and <code>previous_response_id</code>.</p>
-
-<pre><code class="language-python">        try:
-            response = openai_client.responses.create(
-                model=model_deployment,
-                instructions="You are a helpful AI assistant that answers questions and provides information.",
-                input=input_text,
-                previous_response_id=last_response_id,
-            )
-
-            print(f"Assistant: {response.output_text}")
-            last_response_id = response.id
-
-        except Exception as e:
-            print(f"Error occurred: {e}")</code></pre>
-
-<h4 id="response-part-4-run-the-file">Part 4: Run the file</h4>
-
-<pre><code class="language-python">if __name__ == "__main__":
-    chat_with_model()</code></pre>
-
-<h4 id="responses-complete-code">Complete code (<code>response.py</code>)</h4>
-
-<pre><code class="language-python">from openai import OpenAI
-
-# Use values from your Foundry/Azure portal
-azure_openai_endpoint = "https://YOUR-RESOURCE.openai.azure.com/openai/v1"
-api_key = "YOUR_API_KEY"
-model_deployment = "YOUR_DEPLOYMENT_NAME"
-
-openai_client = OpenAI(
-  base_url=azure_openai_endpoint,
-  api_key=api_key,
-  default_headers={"api-key": api_key}
+  <h2>9. Summarization</h2>
+  <p>Summarization creates a shorter version while retaining important information.</p>
+  <div class="code"><div class="label">Colab cell 9 - Summarization</div><button>Copy</button><pre><code>summarizer = pipeline(
+    "summarization",
+    model="sshleifer/distilbart-cnn-12-6",
+    device=device,
 )
 
-def chat_with_model():
-  print("--- Chatting with model using Responses API (Type 'quit' to exit) ---")
-  last_response_id = None
+article = """
+Transformer models are used for many natural language processing tasks.
+The Hugging Face pipeline API combines a tokenizer, a pretrained model,
+and task-specific postprocessing behind a simple function call. This makes
+it convenient for experimentation and teaching. For production systems,
+developers still need to evaluate model quality, latency, cost, safety,
+and whether the selected model is appropriate for the intended data.
+"""
 
-  while True:
-    input_text = input("\\nYou: ")
-    if input_text.lower() in ["quit", "exit"]:
-      break
+summarizer(article, max_length=55, min_length=20, do_sample=False)</code></pre></div>
+  <p>The result contains <code>summary_text</code>. Compare it with the original and identify which details were removed.</p>
 
-    try:
-      response = openai_client.responses.create(
-        model=model_deployment,
-        instructions="You are a helpful AI assistant that answers questions and provides information.",
-        input=input_text,
-        previous_response_id=last_response_id,
-      )
-
-      print(f"Assistant: {response.output_text}")
-      last_response_id = response.id
-
-    except Exception as e:
-      print(f"Error occurred: {e}")
-
-if __name__ == "__main__":
-  chat_with_model()</code></pre>
-
-<ol>
-  <li>Save the file as <code>response.py</code>.</li>
-  <li>Run it:
-    <pre><code class="language-powershell">python response.py</code></pre>
-  </li>
-  <li>Ask two related questions (for example, first ask about ELIZA, then ask how it compares with modern LLMs) and observe context retention.</li>
-</ol>
-
-<blockquote>
-  <p><strong>Security reminder</strong>: Never hardcode real keys in source files you plan to share or commit. Prefer environment variables for production use.</p>
-</blockquote>
-
-<h3 id="optional-env-based-version">Optional: use values from .env inside Python</h3>
-
-<p>If you prefer not to hardcode endpoint and deployment values in source code, use this version:</p>
-
-<pre><code class="language-python">import os
-from dotenv import load_dotenv
-from openai import OpenAI
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
-
-load_dotenv()
-
-endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
-deployment_name = os.environ["AZURE_OPENAI_DEPLOYMENT"]
-token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://ai.azure.com/.default")
-
-client = OpenAI(base_url=endpoint, api_key=token_provider)
-
-completion = client.chat.completions.create(
-    model=deployment_name,
-    messages=[{"role": "user", "content": "What is the capital of France?"}],
+  <h2>10. Translation</h2>
+  <p>Use a model trained specifically for French-to-English translation.</p>
+  <div class="code"><div class="label">Colab cell 10 - Translation</div><button>Copy</button><pre><code>translator = pipeline(
+    "translation",
+    model="Helsinki-NLP/opus-mt-fr-en",
+    device=device,
 )
 
-print(completion.choices[0].message.content)</code></pre>
+translator("Ce cours présente les modèles Transformer.")</code></pre></div>
+  <p>The result should contain an English sentence under <code>translation_text</code>.</p>
+  <p><span class="task">Try it</span> Visit the <a href="https://huggingface.co/models?pipeline_tag=translation" target="_blank" rel="noreferrer">translation models on the Hub</a>, choose another language pair, and update both the model and input text.</p>
 
-<h2 id="summary">Summary</h2>
+  <h2>11. Optional: image classification</h2>
+  <p>This step demonstrates that the pipeline API also supports images.</p>
+  <div class="code"><div class="label">Colab cell 11 - Image classification</div><button>Copy</button><pre><code>image_classifier = pipeline(
+    "image-classification",
+    model="google/vit-base-patch16-224",
+    device=device,
+)
 
-<p>In this exercise, you created a Foundry project, used the <strong>New Foundry</strong> agent flow to get an automatic model deployment, captured deployment settings, and implemented two client styles: one with <em>Chat Completions</em> and one with <em>Responses</em>. You also compared the API patterns and practiced context handling with <code>previous_response_id</code>.</p>
+image_url = (
+    "https://huggingface.co/datasets/huggingface/documentation-images/"
+    "resolve/main/pipeline-cat-chonk.jpeg"
+)
 
-<h2 id="clean-up">Clean up</h2>
+image_classifier(image_url)[:5]</code></pre></div>
+  <p>The output is a ranked list of image labels and scores. Predictions are model estimates and may not match the everyday label you expected.</p>
 
-<p>If you’ve finished exploring Microsoft Foundry, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.</p>
+  <h2>12. Optional: automatic speech recognition</h2>
+  <p>Use a compact Whisper checkpoint to transcribe a short audio file.</p>
+  <div class="code"><div class="label">Colab cell 12 - Speech recognition</div><button>Copy</button><pre><code>transcriber = pipeline(
+    "automatic-speech-recognition",
+    model="openai/whisper-tiny.en",
+    device=device,
+)
 
-<ol>
-  <li>Open the <a href="https://portal.azure.com">Azure portal</a> and view the contents of the resource group where you deployed the resources used in this exercise.</li>
-  <li>On the toolbar, select <strong>Delete resource group</strong>.</li>
-  <li>Enter the resource group name and confirm that you want to delete it.</li>
-</ol>
+audio_url = "https://huggingface.co/datasets/Narsil/asr_dummy/resolve/main/mlk.flac"
+transcriber(audio_url)</code></pre></div>
+  <p>The result should be a dictionary containing transcribed <code>text</code>.</p>
 
-            </article>
-        </main>
-    </div>
-    <footer class="fixed-bottom d-print-none">
-        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
-            <span class="navbar-text">
-                &copy; 2025 Microsoft &nbsp;|&nbsp;
-                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
-                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
-                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
-                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
-                <i class="fa fa-github" aria-hidden="true"></i>
-                <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="ml-2">
-                    Source
-                </a>
-            </span>
-        </nav>
-    </footer>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-    <script src="/mslearn-ai-studio/assets/js/script.js?v=bb2ee0659192e2b709180664179aa949f1110420"></script>
+  <h2>13. Compare the tasks</h2>
+  <p>Create a final Markdown cell in Colab and complete this table in your own words:</p>
+  <table>
+    <thead><tr><th>Pipeline</th><th>Input</th><th>Output</th><th>Key limitation</th></tr></thead>
+    <tbody>
+      <tr><td>Sentiment analysis</td><td>Text</td><td>Label and score</td><td>Uses the model's learned label scheme</td></tr>
+      <tr><td>Zero-shot classification</td><td>Text and candidate labels</td><td>Ranked labels</td><td>Scores depend heavily on label wording</td></tr>
+      <tr><td>Text generation</td><td>Prompt</td><td>Generated continuation</td><td>Can produce inaccurate text</td></tr>
+      <tr><td>Summarization</td><td>Longer text</td><td>Shorter text</td><td>May omit or distort details</td></tr>
+    </tbody>
+  </table>
+
+  <h2>14. Save and submit the Colab notebook</h2>
+  <ol>
+    <li>Select <strong>Runtime &gt; Run all</strong> to confirm the notebook works from top to bottom.</li>
+    <li>Review the outputs and remove any failed experimental cells.</li>
+    <li>Select <strong>File &gt; Save</strong>.</li>
+    <li>To submit a file, select <strong>File &gt; Download &gt; Download .ipynb</strong>.</li>
+    <li>To share from Drive, select <strong>Share</strong> and choose the access level required by your instructor. Do not make private data public.</li>
+  </ol>
+
+  <h2>Troubleshooting</h2>
+  <table>
+    <thead><tr><th>Problem</th><th>Suggested action</th></tr></thead>
+    <tbody>
+      <tr><td>Colab disconnects or forgets variables</td><td>Reconnect and use <strong>Runtime &gt; Run all</strong>. Colab sessions are temporary.</td></tr>
+      <tr><td>CUDA out-of-memory error</td><td>Restart the runtime and run fewer models at once, or switch to CPU. Deleting a Python variable alone may not immediately release all GPU memory.</td></tr>
+      <tr><td>Model download is slow</td><td>Wait for the first download to finish. Do not repeatedly rerun the same loading cell.</td></tr>
+      <tr><td>Output differs from the example</td><td>Generation is nondeterministic and model versions can change. Check the output structure and task behavior rather than exact wording.</td></tr>
+      <tr><td>A model requires permission</td><td>Use a public alternative. This lab does not require a Hugging Face access token.</td></tr>
+      <tr><td>Translation tokenizer error</td><td>Rerun the package installation cell and confirm <code>sentencepiece</code> and <code>sacremoses</code> installed successfully.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Cleanup</h2>
+  <ol>
+    <li>Select <strong>Runtime &gt; Disconnect and delete runtime</strong> to release the Colab CPU/GPU and memory.</li>
+    <li>Your notebook remains in Google Drive if you saved it there.</li>
+  </ol>
+
+  <div class="summary"><strong>Summary</strong><br>You used one high-level Transformers API to run classification, generation, token prediction, entity extraction, summarization, translation, vision, and speech tasks. Each pipeline hides preprocessing and postprocessing, but selecting and evaluating the correct task and model remains the developer's responsibility.</div>
+</main>
+<script>
+async function copyText(text){if(navigator.clipboard){try{await navigator.clipboard.writeText(text);return}catch{}}const area=document.createElement("textarea");area.value=text;document.body.append(area);area.select();document.execCommand("copy");area.remove()}
+document.querySelectorAll("button").forEach(button=>button.addEventListener("click",async()=>{await copyText(button.nextElementSibling.innerText);button.textContent="Copied";setTimeout(()=>button.textContent="Copy",1200)}));
+</script>
 </body>
-
 </html>

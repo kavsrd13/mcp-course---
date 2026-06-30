@@ -2,9 +2,9 @@
 <html lang="en">
     <head>
         <title>
-            Create a knowledge mining solution | 
+            Create a generative AI chat app | 
             
-            Develop AI-powered information extraction solutions in Azure
+            Develop generative AI solutions in Azure
         </title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -13,15 +13,15 @@
         <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
         <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script>
-        <link rel="stylesheet" href="/mslearn-ai-information-extraction/assets/css/style.css?v=35d2d13d9b754f150857b69692d84f091c37f8db">
+        <link rel="stylesheet" href="/mslearn-ai-studio/assets/css/style.css?v=bb2ee0659192e2b709180664179aa949f1110420">
     </head>
     <body data-spy="scroll" data-target="#linksMenu">
     <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
         <div class="container d-flex justify-content-between">
             <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
-            <span class="my-1 title text-black">Develop AI-powered information extraction solutions in Azure</span>
+            <span class="my-1 title text-black">Develop generative AI solutions in Azure</span>
             <span class="ml-2">
-                <a href="https://microsoftlearning.github.io/mslearn-ai-information-extraction" class="d-flex align-items-center">
+                <a href="https://microsoftlearning.github.io/mslearn-ai-studio" class="d-flex align-items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                         class="bi bi-house-door-fill" viewBox="0 0 16 16">
                         <path
@@ -33,10 +33,10 @@
         </div>
         <!--
         <div class="container d-flex justify-content-between">
-            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-information-extraction">
-                Develop AI-powered information extraction solutions in Azure
+            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-studio">
+                Develop generative AI solutions in Azure
             </a>
-            <a href="https://github.com/MicrosoftLearning/mslearn-ai-information-extraction" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
+            <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
                 <i class="fa fa-github" aria-hidden="true"></i>
                 <span class="ml-2">GitHub</span>
             </a>
@@ -54,250 +54,348 @@
             </aside>
             <hr class="" />
             <article class="col-sm-10 mb-5">
-                <h1 id="create-a-knowledge-mining-solution">Create a knowledge mining solution</h1>
+                <h1 id="create-a-generative-ai-chat-app">Create a generative AI chat app</h1>
 
-<p>In this exercise, you use Azure AI Search to create a knowledge mining solution that indexes a set of travel brochure documents. The indexing process uses AI skills to extract key information from the documents, and you’ll create a Python client application to search the index.</p>
+<p>In this exercise, you use the OpenAI SDK to build chat apps with both the <em>Chat Completions</em> API and the <em>Responses</em> API against a model deployed in a Microsoft Foundry project.</p>
 
-<p>This exercise takes approximately <strong>40</strong> minutes.</p>
+<p>This exercise takes approximately <strong>45</strong> minutes.</p>
 
-<h2 id="create-azure-resources">Create Azure resources</h2>
+<blockquote>
+  <p><strong>Note</strong>: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.</p>
+</blockquote>
 
-<p>The solution requires multiple resources in your Azure subscription, all created in the same region.</p>
+<h2 id="learning-objective">Learning objective</h2>
 
-<h3 id="create-an-azure-ai-search-resource">Create an Azure AI Search resource</h3>
+<p>In this lab, you will learn:</p>
+
+<ul>
+  <li>How to call the <strong>Chat Completions API</strong> for message-based chat prompts.</li>
+  <li>How to call the <strong>Responses API</strong> for instruction/input style requests with response tracking.</li>
+  <li>The practical differences between these two API styles and when to use each.</li>
+</ul>
+
+<h2 id="prerequisites">Prerequisites</h2>
+
+<p>Before starting this exercise, ensure you have:</p>
+
+<ul>
+  <li>An active <a href="https://azure.microsoft.com/pricing/purchase-options/azure-account">Azure subscription</a></li>
+  <li><a href="https://code.visualstudio.com/">Visual Studio Code</a> installed</li>
+  <li><a href="https://www.python.org/downloads/release/python-31312/">Python version <strong>3.13.xx</strong></a> installed*</li>
+  <li><a href="https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest">Azure CLI</a> installed</li>
+</ul>
+
+<blockquote>
+  <p>* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.</p>
+</blockquote>
+
+<h2 id="create-a-microsoft-foundry-project">Create a Microsoft Foundry project</h2>
+
+<p>Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.</p>
 
 <ol>
-  <li>In a web browser, open the <a href="https://portal.azure.com">Azure portal</a> at <code>https://portal.azure.com</code> and sign in with your Azure credentials.</li>
-  <li>Select the <strong>＋Create a resource</strong> button, search for <code>Azure AI Search</code>, and create an <strong>Azure AI Search</strong> resource with the following settings:
+  <li>
+    <p>In a web browser, open the <a href="https://ai.azure.com">Microsoft Foundry portal</a> at <code>https://ai.azure.com</code> and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.</p>
+  </li>
+  <li>If it is not already enabled, in the tool bar the top of the page, enable the <strong>New Foundry</strong> option. Then, if prompted, create a new project with a unique name; expanding the <strong>Advanced options</strong> area to specify the following settings for your project:
     <ul>
+      <li><strong>Foundry resource</strong>: <em>Use the default name for your resource (usually {project_name}-resource)</em></li>
       <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
       <li><strong>Resource group</strong>: <em>Create or select a resource group</em></li>
-      <li><strong>Service name</strong>: <em>A valid name for your search resource</em></li>
-      <li><strong>Location</strong>: <em>Any available location</em></li>
-      <li><strong>Pricing tier</strong>: Free</li>
+      <li><strong>Region</strong>: Select any of the <strong>AI Foundry recommended</strong> regions in <strong target="_blank"><a href="https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability">this list</a></strong></li>
     </ul>
   </li>
-  <li>Wait for deployment to complete, and then go to the deployed resource.</li>
-  <li>Review the <strong>Overview</strong> page. Here you can use a visual interface to create, test, manage, and monitor the various components of a search solution.</li>
+  <li>Wait for your project to be created. Then view its home page.</li>
 </ol>
 
-<h3 id="create-a-storage-account">Create a storage account</h3>
+<h2 id="deploy-a-model">Deploy a model</h2>
+
+<p>In this version of the lab, you will create an agent in the <strong>New Foundry</strong> experience. When the agent is created, a model deployment is created automatically.</p>
 
 <ol>
-  <li>Return to the Azure portal home page and create a <strong>Storage account</strong> resource with the following settings:
+  <li>In the Foundry portal, ensure <strong>New Foundry</strong> is enabled.</li>
+  <li>Open the left navigation and select <strong>Agents</strong>.</li>
+  <li>Select <strong>+ New agent</strong> and create an agent with default settings.</li>
+  <li>Wait until agent creation finishes. A model deployment is created automatically for agent usage.</li>
+  <li>Go to <strong>Models</strong> and note the following values:
     <ul>
-      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
-      <li><strong>Resource group</strong>: <em>The same resource group as your Azure AI Search resource</em></li>
-      <li><strong>Storage account name</strong>: <em>A valid name for your storage resource</em></li>
-      <li><strong>Region</strong>: <em>The same region as your Azure AI Search resource</em></li>
-      <li><strong>Primary service</strong>: Azure Blob Storage or Azure Data Lake Storage Gen 2</li>
-      <li><strong>Performance</strong>: Standard</li>
-      <li><strong>Redundancy</strong>: Locally-redundant storage (LRS)</li>
+      <li><strong>Deployment name</strong> (use your own deployment name from the portal)</li>
+      <li><strong>Azure OpenAI endpoint</strong> (example format: <code>https://YOUR-RESOURCE.services.ai.azure.com/openai/v1</code>)</li>
+      <li><strong>API key</strong> (from your resource keys)</li>
     </ul>
-  </li>
-  <li>Wait for deployment to complete, and then go to the deployed resource.</li>
-</ol>
-
-<h2 id="upload-documents-to-azure-storage">Upload documents to Azure Storage</h2>
-
-<p>Your knowledge mining solution will extract information from travel brochure documents stored in Azure Blob Storage.</p>
-
-<ol>
-  <li>In a new browser tab, download <a href="https://github.com/microsoftlearning/mslearn-ai-information-extraction/raw/main/Labfiles/knowledge/documents.zip">documents.zip</a> from <code>https://github.com/microsoftlearning/mslearn-ai-information-extraction/raw/main/Labfiles/knowledge/documents.zip</code> and save it to a local folder.</li>
-  <li>Extract the downloaded <em>documents.zip</em> file and view the travel brochure files it contains.</li>
-  <li>In the Azure portal, navigate to your storage account and select <strong>Storage browser</strong> in the navigation pane.</li>
-  <li>In the storage browser, select <strong>Blob containers</strong>.</li>
-  <li>In the toolbar, select <strong>+ Container</strong> and create a new container with the following settings:
-    <ul>
-      <li><strong>Name</strong>: <code>documents</code></li>
-      <li><strong>Anonymous access level</strong>: Private (no anonymous access)</li>
-    </ul>
-  </li>
-  <li>Select the <strong>documents</strong> container, and use the <strong>Upload</strong> toolbar button to upload the .pdf files you extracted from <strong>documents.zip</strong>.</li>
-</ol>
-
-<h2 id="create-and-run-an-indexer">Create and run an indexer</h2>
-
-<p>Now that you have the documents in place, you can create an indexer to use AI skills to extract information from them.</p>
-
-<ol>
-  <li>In the Azure portal, browse to your Azure AI Search resource. On its <strong>Overview</strong> page, select <strong>Import data</strong>.</li>
-  <li>On the <strong>Connect to your data</strong> page, in the <strong>Data Source</strong> list, select <strong>Azure Blob Storage</strong>.</li>
-  <li>
-    <p>Select <strong>keyword search</strong>. Then complete the data store details with the following values:</p>
-  </li>
-  <li>On <strong>Connect to your data</strong> form set the following:
-    <ul>
-      <li><strong>Storage account</strong>: <em>Your recently created storage account</em></li>
-      <li><strong>Blob container</strong>: Select the <strong>documents</strong> container.</li>
-      <li>Leave the remaining options as their default values, and then select <strong>Next</strong>.</li>
-    </ul>
-  </li>
-  <li>On <strong>Apply AI enrichments</strong> set the following:
-    <ul>
-      <li>Select <strong>Extract phrases</strong>.</li>
-      <li>Select <strong>Extract entities</strong>, select the settings icon, ensure only <strong>Persons</strong> and <strong>Locations</strong> are selected, and then select <strong>Save</strong>.</li>
-      <li>Select <strong>Extract text from images</strong>, select the settings icon, ensure <strong>Generate tags</strong> and <strong>Categorize content</strong> are selected, and then select <strong>Save</strong>.</li>
-      <li>If it isn’t already selected, choose the free Foundry Tools resource option, and then select <strong>Next</strong>.</li>
-    </ul>
-
-    <blockquote>
-      <p><strong>Note</strong>: The free Azure AI Services enrichment for Azure AI Search can be used to index a maximum of 20 documents. In a production solution, you should create and attach an Azure AI Services resource.</p>
-    </blockquote>
-  </li>
-  <li>On <strong>Preview mappings</strong> set the following configuration:
-    <ul>
-      <li>The fields are already mapped based on the options you selected in the previous step.</li>
-      <li>Review the following fields and ensure that they’re configured as shown in the following table. To update a field, select it and then select <strong>Configure field</strong>. Leave all other fields with their default settings.</li>
-    </ul>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Target index field name</th>
-          <th>Retrievable</th>
-          <th>Filterable</th>
-          <th>Sortable</th>
-          <th>Facetable</th>
-          <th>Searchable</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>metadata_storage_size</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td> </td>
-          <td> </td>
-        </tr>
-        <tr>
-          <td>metadata_storage_last_modified</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td> </td>
-          <td> </td>
-        </tr>
-        <tr>
-          <td>title</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td> </td>
-          <td>✔</td>
-        </tr>
-        <tr>
-          <td>locations</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td> </td>
-          <td> </td>
-          <td>✔</td>
-        </tr>
-        <tr>
-          <td>persons</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td> </td>
-          <td> </td>
-          <td>✔</td>
-        </tr>
-        <tr>
-          <td>keyPhrases</td>
-          <td>✔</td>
-          <td>✔</td>
-          <td> </td>
-          <td> </td>
-          <td>✔</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <ul>
-      <li>Double-check your selections carefully.</li>
-      <li>Select <strong>Next</strong>.</li>
-    </ul>
-  </li>
-  <li>On <strong>Advanced settings</strong> set the following:
-    <ul>
-      <li>Ensure <strong>Enable semantic ranker</strong> is selected.</li>
-      <li>If it isn’t already selected, set <strong>Schedule</strong> to <strong>Once</strong>.</li>
-      <li>Select <strong>Next</strong>.</li>
-    </ul>
-  </li>
-  <li>On <strong>Review and create</strong> set <strong>Objects name prefix</strong> to <code>margies-index</code> and then select <strong>Create</strong>.</li>
-  <li>You may close the success notification.</li>
-  <li>In the navigation pane on the left, under <strong>Search management</strong>, view the <strong>Indexers</strong> page. The <strong>margies-index-indexer</strong> should appear. Wait a few minutes, and click <strong>&amp;orarr; Refresh</strong> until the <strong>Status</strong> indicates <strong>Success</strong>.</li>
-</ol>
-
-<h2 id="search-the-index">Search the index</h2>
-
-<p>Now that you have an index, you can search it.</p>
-
-<ol>
-  <li>Return to the <strong>Overview</strong> page for your Azure AI Search resource, and on the toolbar, select <strong>Search explorer</strong>.</li>
-  <li>
-    <p>In Search explorer, in the <strong>Query string</strong> box, enter <code>*</code> (a single asterisk) and then select <strong>Search</strong>.</p>
-
-    <p>This query retrieves all documents in the index in JSON format. Examine the results and note the fields for each document, which include document content, metadata, and enriched data extracted by the cognitive skills.</p>
-  </li>
-  <li>
-    <p>In the <strong>View</strong> menu, select <strong>JSON view</strong> and note that the JSON request for the search is shown:</p>
-
-    <pre><code class="language-json"> {
-   "search": "*",
-   "count": true
- }
-</code></pre>
-  </li>
-  <li>
-    <p>The results include a <strong>@odata.count</strong> field at the top of the results that indicates the number of documents returned by the search.</p>
-  </li>
-  <li>
-    <p>Modify the JSON request to include a <strong>select</strong> parameter:</p>
-
-    <pre><code class="language-json"> {
-   "search": "*",
-   "count": true,
-   "select": "title,locations"
- }
-</code></pre>
-
-    <pre><code> This time the results include only the file name and any locations mentioned in the document content. The file name is in the **title** field. The **locations** field was generated by an AI skill.
-</code></pre>
-  </li>
-  <li>
-    <p>Try the following query string:</p>
-
-    <pre><code class="language-json"> {
-   "search": "New York",
-   "count": true,
-   "select": "title,keyPhrases"
- }
-</code></pre>
-
-    <p>This search finds documents that mention “New York” in any searchable field, and returns the file name and key phrases.</p>
-  </li>
-  <li>
-    <p>Try one more query:</p>
-
-    <pre><code class="language-json"> {
-     "search": "New York",
-     "count": true,
-     "select": "title,keyPhrases",
-     "filter": "metadata_storage_size lt 380000"
- }
-</code></pre>
-
-    <p>This returns documents mentioning “New York” that are smaller than 380,000 bytes.</p>
   </li>
 </ol>
 
-<h3 id="get-the-endpoint-and-keys">Get the endpoint and keys for your search resource</h3>
+<h2 id="create-a-client-application-to-chat-with-the-model">Create a client application to chat with the model</h2>
+
+<p>Now create the app files directly in Visual Studio Code so students can copy, paste, and run without cloning any repository.</p>
+
+<h3 id="create-the-local-project-files">Create the local project files</h3>
+
 <ol>
-  <li>In the Azure portal, return to the <strong>Overview</strong> page for your Azure AI Search resource. Note the <strong>Url</strong> value (e.g., <code>https://your_resource_name.search.windows.net</code>). This is the endpoint for your search resource.</li>
-  <li>In the navigation pane on the left, expand <strong>Settings</strong> and view the <strong>Keys</strong> page. Note the <strong>query key</strong> &mdash; you&rsquo;ll need this for your client application.</li>
+  <li>Open Visual Studio Code and create a new folder for this lab (for example, <code>exercise-04-chat-app</code>).</li>
+  <li>Open a terminal in that folder.</li>
+  <li>Create and activate a virtual environment:
+    <pre><code class="language-powershell">python -m venv .venv
+.\.venv\Scripts\Activate.ps1</code></pre>
+  </li>
+  <li>Install required packages:
+    <pre><code class="language-powershell">pip install openai azure-identity python-dotenv</code></pre>
+  </li>
+  <li>Create a new file named <code>.env</code> in the folder and paste this template:</li>
+</ol>
+
+<pre><code class="language-bash">AZURE_OPENAI_ENDPOINT=https://YOUR-RESOURCE.services.ai.azure.com/openai/v1
+AZURE_OPENAI_API_KEY=YOUR_API_KEY
+AZURE_OPENAI_DEPLOYMENT=YOUR_DEPLOYMENT_NAME</code></pre>
+
+<p>Replace each placeholder with the values you noted from <strong>Models</strong> and the resource key page.</p>
+
+<h3 id="use-the-chatcompletions-api-to-chat-with-the-model">Use the <em>ChatCompletions</em> API to chat with the model</h3>
+
+<p>Create a new Python file named <code>chat_app.py</code>. Add the code in parts.</p>
+
+<h4 id="part-1-imports-and-authentication">Part 1: Imports and authentication</h4>
+
+<p>This part imports the OpenAI SDK and Azure identity helpers. <code>DefaultAzureCredential</code> allows Entra ID sign-in. The token provider gives OpenAI a bearer token for Azure AI.</p>
+
+<pre><code class="language-python">from openai import OpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider</code></pre>
+
+<h4 id="part-2-connection-settings">Part 2: Connection settings</h4>
+
+<p>This part sets the endpoint and deployment name. Students can paste direct values first and later switch to environment variable loading if needed.</p>
+
+<pre><code class="language-python">endpoint = "https://YOUR-RESOURCE.services.ai.azure.com/openai/v1"
+deployment_name = "YOUR_DEPLOYMENT_NAME"</code></pre>
+
+<h4 id="part-3-token-provider-and-client">Part 3: Token provider and client</h4>
+
+<p>This part creates an Entra token provider and initializes the OpenAI client for Azure endpoint access.</p>
+
+<pre><code class="language-python">token_provider = get_bearer_token_provider(
+    DefaultAzureCredential(),
+    "https://ai.azure.com/.default"
+)
+
+client = OpenAI(
+    base_url=endpoint,
+    api_key=token_provider
+)</code></pre>
+
+<h4 id="part-4-send-a-chat-request">Part 4: Send a chat request</h4>
+
+<p>This part sends one user message to the deployment and prints the assistant response.</p>
+
+<pre><code class="language-python">completion = client.chat.completions.create(
+    model=deployment_name,
+    messages=[
+        {
+            "role": "user",
+            "content": "What is the capital of France?",
+        }
+    ],
+)
+
+print(completion.choices[0].message.content)</code></pre>
+
+<h4 id="chat-completions-complete-code">Complete code (<code>chat_app.py</code>)</h4>
+
+<pre><code class="language-python">from openai import OpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+endpoint = "https://YOUR-RESOURCE.services.ai.azure.com/openai/v1"
+deployment_name = "YOUR_DEPLOYMENT_NAME"
+
+token_provider = get_bearer_token_provider(
+  DefaultAzureCredential(),
+  "https://ai.azure.com/.default"
+)
+
+client = OpenAI(
+  base_url=endpoint,
+  api_key=token_provider
+)
+
+completion = client.chat.completions.create(
+  model=deployment_name,
+  messages=[
+    {
+      "role": "user",
+      "content": "What is the capital of France?",
+    }
+  ],
+)
+
+print(completion.choices[0].message.content)</code></pre>
+
+<ol>
+  <li>Run Azure sign-in in your terminal:
+    <pre><code class="language-powershell">az login</code></pre>
+  </li>
+  <li>Create <code>chat_app.py</code>, combine the code from Parts 1 to 4, and save.</li>
+  <li>Run the script:
+    <pre><code class="language-powershell">python chat_app.py</code></pre>
+  </li>
+  <li>Expected output: a short answer such as <strong>Paris</strong>.</li>
+</ol>
+
+<h3 id="api-differences">Chat Completions vs Responses API</h3>
+
+<p>Before writing the second file, review the API differences:</p>
+
+<ul>
+  <li><strong>Chat Completions</strong>: Uses a <code>messages</code> array with explicit roles like <code>system</code>, <code>user</code>, and <code>assistant</code>.</li>
+  <li><strong>Responses</strong>: Uses <code>instructions</code> and <code>input</code>, and supports conversation continuation with <code>previous_response_id</code>.</li>
+  <li><strong>Use case</strong>: Chat Completions is ideal for explicit message control, while Responses is often simpler for workflow-driven prompt/response handling.</li>
+</ul>
+
+<h3 id="use-the-responses-api-with-response-py">Use the <em>Responses</em> API with <code>response.py</code></h3>
+
+<p>Create a new file named <code>response.py</code> and add the following code in parts.</p>
+
+<h4 id="response-part-1-client-config">Part 1: Client configuration</h4>
+
+<p>This part sets endpoint, API key, and deployment name for API key authentication.</p>
+
+<pre><code class="language-python">from openai import OpenAI
+
+# Use values from your Foundry/Azure portal
+azure_openai_endpoint = "https://YOUR-RESOURCE.openai.azure.com/openai/v1"
+api_key = "YOUR_API_KEY"
+model_deployment = "YOUR_DEPLOYMENT_NAME"
+
+openai_client = OpenAI(
+    base_url=azure_openai_endpoint,
+    api_key=api_key,
+    default_headers={"api-key": api_key}
+)</code></pre>
+
+<h4 id="response-part-2-chat-loop">Part 2: Build a chat loop</h4>
+
+<p>This part creates an interactive loop and tracks <code>last_response_id</code> to keep context between turns.</p>
+
+<pre><code class="language-python">def chat_with_model():
+    print("--- Chatting with model using Responses API (Type 'quit' to exit) ---")
+    last_response_id = None
+
+    while True:
+        input_text = input("\nYou: ")
+        if input_text.lower() in ["quit", "exit"]:
+            break</code></pre>
+
+<h4 id="response-part-3-call-responses-api">Part 3: Call the Responses API</h4>
+
+<p>This part sends the request using <code>instructions</code>, <code>input</code>, and <code>previous_response_id</code>.</p>
+
+<pre><code class="language-python">        try:
+            response = openai_client.responses.create(
+                model=model_deployment,
+                instructions="You are a helpful AI assistant that answers questions and provides information.",
+                input=input_text,
+                previous_response_id=last_response_id,
+            )
+
+            print(f"Assistant: {response.output_text}")
+            last_response_id = response.id
+
+        except Exception as e:
+            print(f"Error occurred: {e}")</code></pre>
+
+<h4 id="response-part-4-run-the-file">Part 4: Run the file</h4>
+
+<pre><code class="language-python">if __name__ == "__main__":
+    chat_with_model()</code></pre>
+
+<h4 id="responses-complete-code">Complete code (<code>response.py</code>)</h4>
+
+<pre><code class="language-python">from openai import OpenAI
+
+# Use values from your Foundry/Azure portal
+azure_openai_endpoint = "https://YOUR-RESOURCE.openai.azure.com/openai/v1"
+api_key = "YOUR_API_KEY"
+model_deployment = "YOUR_DEPLOYMENT_NAME"
+
+openai_client = OpenAI(
+  base_url=azure_openai_endpoint,
+  api_key=api_key,
+  default_headers={"api-key": api_key}
+)
+
+def chat_with_model():
+  print("--- Chatting with model using Responses API (Type 'quit' to exit) ---")
+  last_response_id = None
+
+  while True:
+    input_text = input("\\nYou: ")
+    if input_text.lower() in ["quit", "exit"]:
+      break
+
+    try:
+      response = openai_client.responses.create(
+        model=model_deployment,
+        instructions="You are a helpful AI assistant that answers questions and provides information.",
+        input=input_text,
+        previous_response_id=last_response_id,
+      )
+
+      print(f"Assistant: {response.output_text}")
+      last_response_id = response.id
+
+    except Exception as e:
+      print(f"Error occurred: {e}")
+
+if __name__ == "__main__":
+  chat_with_model()</code></pre>
+
+<ol>
+  <li>Save the file as <code>response.py</code>.</li>
+  <li>Run it:
+    <pre><code class="language-powershell">python response.py</code></pre>
+  </li>
+  <li>Ask two related questions (for example, first ask about ELIZA, then ask how it compares with modern LLMs) and observe context retention.</li>
+</ol>
+
+<blockquote>
+  <p><strong>Security reminder</strong>: Never hardcode real keys in source files you plan to share or commit. Prefer environment variables for production use.</p>
+</blockquote>
+
+<h3 id="optional-env-based-version">Optional: use values from .env inside Python</h3>
+
+<p>If you prefer not to hardcode endpoint and deployment values in source code, use this version:</p>
+
+<pre><code class="language-python">import os
+from dotenv import load_dotenv
+from openai import OpenAI
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+
+load_dotenv()
+
+endpoint = os.environ["AZURE_OPENAI_ENDPOINT"]
+deployment_name = os.environ["AZURE_OPENAI_DEPLOYMENT"]
+token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://ai.azure.com/.default")
+
+client = OpenAI(base_url=endpoint, api_key=token_provider)
+
+completion = client.chat.completions.create(
+    model=deployment_name,
+    messages=[{"role": "user", "content": "What is the capital of France?"}],
+)
+
+print(completion.choices[0].message.content)</code></pre>
+
+<h2 id="summary">Summary</h2>
+
+<p>In this exercise, you created a Foundry project, used the <strong>New Foundry</strong> agent flow to get an automatic model deployment, captured deployment settings, and implemented two client styles: one with <em>Chat Completions</em> and one with <em>Responses</em>. You also compared the API patterns and practiced context handling with <code>previous_response_id</code>.</p>
+
+<h2 id="clean-up">Clean up</h2>
+
+<p>If you’ve finished exploring Microsoft Foundry, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.</p>
+
+<ol>
+  <li>Open the <a href="https://portal.azure.com">Azure portal</a> and view the contents of the resource group where you deployed the resources used in this exercise.</li>
+  <li>On the toolbar, select <strong>Delete resource group</strong>.</li>
+  <li>Enter the resource group name and confirm that you want to delete it.</li>
 </ol>
 
             </article>
@@ -312,7 +410,7 @@
                   <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
                   <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
                 <i class="fa fa-github" aria-hidden="true"></i>
-                <a href="https://github.com/MicrosoftLearning/mslearn-ai-information-extraction" target="_blank" class="ml-2">
+                <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="ml-2">
                     Source
                 </a>
             </span>
@@ -323,7 +421,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-    <script src="/mslearn-ai-information-extraction/assets/js/script.js?v=35d2d13d9b754f150857b69692d84f091c37f8db"></script>
+    <script src="/mslearn-ai-studio/assets/js/script.js?v=bb2ee0659192e2b709180664179aa949f1110420"></script>
 </body>
 
 </html>

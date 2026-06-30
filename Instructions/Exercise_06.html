@@ -1,263 +1,268 @@
 <!doctype html>
 <html lang="en">
+    <head>
+        <title>
+            Prepare for an AI development project | 
+            
+            Develop generative AI solutions in Azure
+        </title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
+        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script>
+        <link rel="stylesheet" href="/mslearn-ai-studio/assets/css/style.css?v=bb2ee0659192e2b709180664179aa949f1110420">
+    </head>
+    <body data-spy="scroll" data-target="#linksMenu">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
+        <div class="container d-flex justify-content-between">
+            <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
+            <span class="my-1 title text-black">Develop generative AI solutions in Azure</span>
+            <span class="ml-2">
+                <a href="https://microsoftlearning.github.io/mslearn-ai-studio" class="d-flex align-items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
+                    </svg>
+                    &nbsp;Home
+                </a>
+            </span>
+        </div>
+        <!--
+        <div class="container d-flex justify-content-between">
+            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-studio">
+                Develop generative AI solutions in Azure
+            </a>
+            <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <span class="ml-2">GitHub</span>
+            </a>
+        </div>
+        -->
+    </nav>
+    <hr color-"gray"/>
+    <div class="container">
+        <main class="row extra-padding">
+            <aside class="col-sm-2">       
+                <nav id="linksMenu" class="toc sticky-top">
+                    <ul class="nav navbar-nav flex-column">
+                    </ul>
+                </nav>         
+            </aside>
+            <hr class="" />
+            <article class="col-sm-10 mb-5">
+                <h1 id="prepare-for-an-ai-development-project">Prepare for an AI development project</h1>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Exercise 6: Multi-Agent Collaboration</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 40px 20px;
-      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-      background: linear-gradient(135deg, #eff6ff, #f0fdfa);
-      color: #1e293b;
-      line-height: 1.6;
-    }
+<p>In this exercise, you use Microsoft Foundry portal to create a project, ready to build an AI solution.</p>
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-    }
+<p>This exercise takes approximately <strong>30</strong> minutes.</p>
 
-    h1 {
-      color: #0f766e;
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 15px;
-      margin-top: 0;
-    }
+<blockquote>
+  <p><strong>Note</strong>: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.</p>
+</blockquote>
 
-    h2 {
-      color: #0369a1;
-      margin-top: 35px;
-    }
+<h2 id="prerequisites">Prerequisites</h2>
 
-    h3 {
-      color: #334155;
-    }
+<p>Before starting this exercise, ensure you have:</p>
 
-    .step {
-      background: #f8fafc;
-      border-left: 5px solid #0ea5e9;
-      padding: 20px;
-      margin-bottom: 25px;
-      border-radius: 0 10px 10px 0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-    }
+<ul>
+  <li>An active <a href="https://azure.microsoft.com/pricing/purchase-options/azure-account">Azure subscription</a></li>
+  <li><a href="https://code.visualstudio.com/">Visual Studio Code</a> installed</li>
+  <li><a href="https://www.python.org/downloads/release/python-31312/">Python version <strong>3.13.xx</strong></a> installed*</li>
+  <li><a href="https://git-scm.com/install/">Git</a> installed and configured</li>
+  <li><a href="https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest">Azure CLI</a> installed</li>
+</ul>
 
-    .step h3 {
-      margin-top: 0;
-      color: #0ea5e9;
-    }
+<blockquote>
+  <p>* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.</p>
+</blockquote>
 
-    pre {
-      background: #0f172a;
-      color: #f8fafc;
-      padding: 16px;
-      border-radius: 10px;
-      overflow-x: auto;
-      font-family: "Consolas", "Monaco", monospace;
-      font-size: 0.9rem;
-      line-height: 1.4;
-      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
+<h2 id="create-a-microsoft-foundry-project">Create a Microsoft Foundry project</h2>
 
-    code {
-      font-family: "Consolas", "Monaco", monospace;
-      background: #f1f5f9;
-      padding: 3px 6px;
-      border-radius: 4px;
-      color: #be123c;
-      font-size: 0.9em;
-    }
+<p>Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.</p>
 
-    pre code {
-      background: none;
-      color: inherit;
-      padding: 0;
-      font-size: 1em;
-    }
+<ol>
+  <li>
+    <p>In a web browser, open the <a href="https://ai.azure.com">Microsoft Foundry portal</a> at <code>https://ai.azure.com</code> and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.</p>
+  </li>
+  <li>If it is not already enabled, in the tool bar the top of the page, enable the <strong>New Foundry</strong> option. Then, create a new project with a unique name; expanding the <strong>Advanced options</strong> area to specify the following settings for your project:
+    <ul>
+      <li><strong>Foundry resource</strong>: <em>Use the default name for your resource (usually {project_name}-resource)</em></li>
+      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
+      <li><strong>Resource group</strong>: <em>Create or select a resource group</em></li>
+      <li><strong>Region</strong>: Select any of the <strong>AI Foundry recommended</strong> regions in <strong target="_blank"><a href="https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability">this list</a></strong></li>
+    </ul>
 
-    .note {
-      background: #fffbeb;
-      border-left: 5px solid #f59e0b;
-      padding: 15px 20px;
-      margin: 20px 0;
-      border-radius: 0 8px 8px 0;
-    }
+    <blockquote>
+      <p><strong>Tip</strong>: Make a note of the region you selected. You’ll need it later!</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>Select <strong>Create</strong>. Wait for your project to be created.</p>
 
-    .note strong {
-      color: #b45309;
-    }
-  </style>
-</head>
+    <p>When it is ready, the project home page will open.</p>
 
-<body>
-  <div class="container">
-    <h1>Exercise 6: Develop a Multi-Agent Solution</h1>
-    <p>In this exercise, you will create a sequential pipeline of three AI agents that collaborate to process customer
-      feedback. You will deploy a model in Azure Foundry, configure your environment, and run the Python code to
-      orchestrate the agents.</p>
+    <p><img src="/mslearn-ai-studio/Instructions/media/foundry-portal-home.png" alt="Screenshot of the Foundry project home page." /></p>
+  </li>
+</ol>
 
-    <div class="step">
-      <h3>Step 1: Create a Foundry Agent </h3>
-      <p>Before writing code, you need an AI model to power your agents.</p>
-      <ol>
-        <li>Go to the new <strong>Foundry Portal</strong> and create an Agent. This will automatically deploy a model
-          for you.</li>
-        <li>Once your Agent is created, navigate to the model's settings and copy the following credentials:
-          <ul>
-            <li><strong>Model Endpoint</strong> </li>
-            <li><strong>API Key</strong></li>
-            <li><strong>Deployment Name</strong></li>
-          </ul>
-        </li>
-      </ol>
-      <div class="note">
-        <strong>Important:</strong> Keep these credentials handy, as you will paste them into the code in Step 4.
-      </div>
+<h2 id="deploy-and-test-a-model">Deploy and test a model</h2>
+
+<p>At the core of any generative AI project, there’s at least one generative AI model.</p>
+
+<ol>
+  <li>
+    <p>Now you’re ready to <strong>Start building</strong>. Select <strong>Find models</strong> (or on the <strong>Discover</strong> page, select the <strong>Models</strong> tab) to view the Microsoft Foundry model catalog.</p>
+  </li>
+  <li>
+    <p>Search for the <code>gpt-4.1</code> model, and then select it in the search results to view its model card.</p>
+
+    <p>Model cards provide information about models to help you understand their capabilities and limitations, and determine if they are suitable for your requirements.</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/gpt4.1-details.png" alt="Screenshot of the gpt-4.1 model card." /></p>
+  </li>
+  <li>
+    <p>Select <strong>Deploy</strong> with the default settings to create a deployment of the model.</p>
+
+    <p>Model deployments enable you to work with a model in your project.</p>
+
+    <p>When the model has been deployed, the model playground will open automatically so you can test your model:</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-model-playground.png" alt="Screenshot of the Foundry project model playground." /></p>
+  </li>
+  <li>
+    <p>In the <strong>Instructions</strong> box, enter the following instructions:</p>
+
+    <pre><code class="language-text"> You are an AI assistant that can provide information and advice about AI software development.
+</code></pre>
+  </li>
+  <li>
+    <p>In the chat window, enter a query such as <code>Describe three key considerations for working with Large Language Models for AI application development.</code> and view the response:</p>
+
+    <p>Hopefully the model provided some key considerations for you to think about!</p>
+  </li>
+</ol>
+
+<h2 id="view-foundry-azure-resource-and-project-endpoints">View Foundry Azure resource and project endpoints</h2>
+
+<ol>
+  <li>
+    <p>In the Foundry portal, in the top menu bar, select <strong>Operate</strong>.</p>
+
+    <p>The operation center is where you can monitor your projects, view alerts, monitor agent performance and quotas, and manage resources.</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-operate.png" alt="Screenshot of the Operate center page in Foundry portal." /></p>
+  </li>
+  <li>
+    <p>In the left navigation pane, select the <strong>Admin</strong> page to view details.</p>
+
+    <ul>
+      <li>The <em>resource</em> level relates to the <strong>Foundry</strong> resource that was created in Azure to support your project. This resource includes connections to Foundry Services and models; and provides a central place to manage user access to AI development projects.</li>
+      <li>The <em>project</em> level relates to your individual project, where you can add and manage project-specific resources. A resource can support multiple projects (the first one created is the resource’s <em>default</em> project).</li>
+    </ul>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-admin.png" alt="Screenshot of the Admin page in Foundry portal." /></p>
+  </li>
+  <li>
+    <p>Select the link to the <strong>Parent resource</strong> associated with the project.</p>
+
+    <p>The resource configuration details should be displayed.</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-resource.png" alt="Screenshot of a Foundry resource details page." /></p>
+
+    <p>Note that the Foundry resource has an <em>endpoint</em>, through which client applications can access resource-level functionality (such as Foundry Tools that are shared across all projects in the resource).</p>
+  </li>
+  <li>In the top menu bar, select <strong>Home</strong> to return to the project home page.</li>
+  <li>
+    <p>Note the key, project endpoint, and Azure OpenAI endpoint.</p>
+
+    <p>This information is used to connect to your project-level resouces from client applications.</p>
+
+    <ul>
+      <li>The <em>key</em> is used for key-based authentication to models and tools (though in most production scenarios you should consider using Microsoft Entra ID authentication based on authenticated user and application identities).</li>
+      <li>The <em>project endpoint</em> is used to access models provided directly in Foundry (including OpenAI models) using the OpenAI <strong>Responses</strong> API, and to access Foundry-specific APIs (such as the Foundry Agent service).</li>
+      <li>The <em>OpenAI endpoint</em> is used to access models using OpenAI APIs, including the <strong>Chat Completions</strong> API and the <strong>Responses</strong> API.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="install-the-foundry-toolkit-extension-for-visual-studio-code">Install the Foundry Toolkit extension for Visual Studio Code</h2>
+
+<p>As a developer, you may spend some time working in the Foundry portal; but you’re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.</p>
+
+<ol>
+  <li>Start Visual Studio Code</li>
+  <li>In the navigation bar on the left, view the <strong>Extensions</strong> page.</li>
+  <li>
+    <p>Search the extensions marketplace for <code>Foundry Toolkit</code>, and install the <strong>Foundry Toolkit for VS Code</strong> extension.</p>
+
+    <p>The extension may take a minute or so to install.</p>
+  </li>
+  <li>
+    <p>After installing the extension, select the <strong>AI Toolkit</strong> page in the left navigation bar; and wait for it to load.</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/foundry-vs-extension.png" alt="Screenshot of the Foundry Toolkit Visual Studio Code extension." /></p>
+  </li>
+  <li>
+    <p>In the Foundry Toolkit pane, expand <strong>Microsoft Foundry Resources</strong> and set the default project by connecting to Azure (signing in with your credentials) and selecting the Foundry project you created previously.</p>
+  </li>
+  <li>
+    <p>After setting the default project, expand the project, expand <strong>Models</strong>, and select the <strong>gpt-4.1</strong> model you deployed previously.</p>
+
+    <p>You can view the model deployment details here.</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/vscode-extension-model.png" alt="Screenshot of a model in the  Foundry Toolkit Visual Studio Code extension." /></p>
+  </li>
+  <li>
+    <p>In the Foundry Toolkit pane, in the <strong>Developer Tools</strong> section, expand <strong>Build</strong> and select <strong>Model playground</strong>. Then select the <strong>gpt-4.1</strong> model (if it is not already selected).</p>
+
+    <p>An interactive playground in which you can test the model is opened in Visual Studio Code.</p>
+
+    <p><img src="/mslearn-ai-studio/Instructions/media/vscode-model-playground.png" alt="Screenshot of the model playground in Visual Studio Code." /></p>
+  </li>
+</ol>
+
+<h2 id="summary">Summary</h2>
+
+<p>In this exercise, you’ve created a Microsoft Foundry and explored it in the Foundry portal. You’ve also explored the  Foundry Toolkit extension in Visual Studio Code, which provides a convenient way for developers to work with Foundry projects and their assets.</p>
+
+<h2 id="clean-up">Clean up</h2>
+
+<p>If you’ve finished exploring Foundry portal, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.</p>
+
+<ol>
+  <li>In the <a href="https://portal.azure.com">Azure portal</a> at <code>https://portal.azure.com</code>, view the contents of the resource group where you deployed the resources used in this exercise.</li>
+  <li>On the toolbar, select <strong>Delete resource group</strong>.</li>
+  <li>Enter the resource group name and confirm that you want to delete it.</li>
+</ol>
+
+            </article>
+        </main>
     </div>
-
-    <div class="step">
-      <h3>Step 2: Create and Activate a Virtual Environment</h3>
-      <p>It is highly recommended to isolate your project dependencies using a virtual environment.</p>
-      <p>Open your terminal and run the following commands:</p>
-      <pre><code># Create a virtual environment named "venv"
-python -m venv venv
-
-# Activate it (Windows PowerShell)
-.\venv\Scripts\Activate.ps1
-
-# Activate it (Mac/Linux)
-source venv/bin/activate</code></pre>
-    </div>
-
-    <div class="step">
-      <h3>Step 3: Install Required Libraries</h3>
-      <p>With your virtual environment active, install the Microsoft Agent Framework and OpenAI dependencies.</p>
-      <pre><code>pip install agent-framework agent-framework-openai python-dotenv</code></pre>
-    </div>
-
-    <div class="step">
-      <h3>Step 4: Create the Multi-Agent Script</h3>
-      <p>Create a new file named <code>agents.py</code> in your project folder.</p>
-      <p>Copy and paste the complete code below into <code>agents.py</code>. <strong>Make sure to replace the
-          placeholder endpoint, api_key, and deployment_name</strong> with your actual Azure credentials from Step 1.
-      </p>
-      <pre><code># Add references
-import asyncio
-from typing import cast
-from agent_framework import Message, Agent
-from agent_framework_openai import OpenAIChatCompletionClient
-from agent_framework.orchestrations import SequentialBuilder
-
-async def main():
-    # Agent instructions
-    summarizer_instructions="""
-    Summarize the customer's feedback in one short sentence. Keep it neutral and concise.
-    Example output:
-    App crashes during photo upload.
-    User praises dark mode feature.
-    """
-
-    classifier_instructions="""
-    Classify the feedback as one of the following: Positive, Negative, or Feature request.
-    """
-
-    action_instructions="""
-    Based on the summary and classification, suggest the next action in one short sentence.
-    Example output:
-    Escalate as a high-priority bug for the mobile team.
-    Log as positive feedback to share with design and marketing.
-    Log as enhancement request for product backlog.
-    """
-
-    # --- INSERT YOUR CREDENTIALS HERE ---
-    endpoint = "https://your-foundry-endpoint.services.ai.azure.com/openai/v1"
-    deployment_name = "gpt-oss-120b"
-    api_key = "YOUR_API_KEY_HERE"
-
-    # Create the chat client
-    chat_client = OpenAIChatCompletionClient(
-        model=deployment_name,
-        api_key=api_key,
-        base_url=endpoint
-    )
-
-    # Create agents
-    summarizer = Agent(
-        instructions=summarizer_instructions,
-        name="summarizer",
-        client=chat_client
-    )
-
-    classifier = Agent(
-        instructions=classifier_instructions,
-        name="classifier",
-        client=chat_client
-    )
-
-    action = Agent(
-        instructions=action_instructions,
-        name="action",
-        client=chat_client
-    )
-
-    # Initialize the current feedback
-    feedback="""
-    I use the dashboard every day to monitor metrics, and it works well overall. 
-    But when I'm working late at night, the bright screen is really harsh on my eyes. 
-    If you added a dark mode option, it would make the experience much more comfortable.
-    """
-
-    # Build sequential orchestration
-    workflow = SequentialBuilder(participants=[summarizer, classifier, action]).build()
-
-    # Run and collect outputs
-    outputs: list[list[Message]] = []
-    async for event in workflow.run(f"Customer feedback: {feedback}", stream=True):
-        if event.type == "output":
-            outputs.append(cast(list[Message], event.data))
-
-    # Display outputs
-    if outputs:
-        for i, msg in enumerate(outputs[-1], start=1):
-            name = msg.author_name or ("assistant" if msg.role == "assistant" else "user")
-            print(f"{'-' * 60}\n{i:02d} [{name}]\n{msg.text}")
-
-if __name__ == "__main__":
-    asyncio.run(main())</code></pre>
-    </div>
-
-    <div class="step">
-      <h3>Step 5: Run the Code</h3>
-      <p>Finally, execute the script in your terminal to see the AI agents collaborate in real-time!</p>
-      <pre><code>python agents.py</code></pre>
-
-      <h4>Expected Output:</h4>
-      <p>You should see the feedback processed step-by-step by each agent, looking similar to this:</p>
-      <pre><code>------------------------------------------------------------
-01 [user]
-Customer feedback: 
-    I use the dashboard every day to monitor metrics, and it works well overall. 
-    But when I'm working late at night, the bright screen is really harsh on my eyes. 
-    If you added a dark mode option, it would make the experience much more comfortable.
-------------------------------------------------------------
-02 [summarizer]
-User requests a dark mode to reduce eye strain from the bright screen during nighttime use.
-------------------------------------------------------------
-03 [classifier]
-Feature request
-------------------------------------------------------------
-04 [action]
-Log as enhancement request for the product backlog.</code></pre>
-    </div>
-  </div>
+    <footer class="fixed-bottom d-print-none">
+        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
+            <span class="navbar-text">
+                &copy; 2025 Microsoft &nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
+                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
+                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
+                <i class="fa fa-github" aria-hidden="true"></i>
+                <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="ml-2">
+                    Source
+                </a>
+            </span>
+        </nav>
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="/mslearn-ai-studio/assets/js/script.js?v=bb2ee0659192e2b709180664179aa949f1110420"></script>
 </body>
 
 </html>

@@ -1,268 +1,703 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <title>
-            Prepare for an AI development project | 
-            
-            Develop generative AI solutions in Azure
-        </title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
-        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/vs.min.css">
-        <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-        <script>hljs.initHighlightingOnLoad();</script>
-        <link rel="stylesheet" href="/mslearn-ai-studio/assets/css/style.css?v=bb2ee0659192e2b709180664179aa949f1110420">
-    </head>
-    <body data-spy="scroll" data-target="#linksMenu">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-gray">
-        <div class="container d-flex justify-content-between">
-            <!-- <img src="https://github.com/MicrosoftLearning/Jekyll-Theme/raw/master/assets/microsoft-gray.png" alt="Microsoft logo" style="width:100px;height:21px;"/>-->
-            <span class="my-1 title text-black">Develop generative AI solutions in Azure</span>
-            <span class="ml-2">
-                <a href="https://microsoftlearning.github.io/mslearn-ai-studio" class="d-flex align-items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                        class="bi bi-house-door-fill" viewBox="0 0 16 16">
-                        <path
-                            d="M6.5 14.5v-3.505c0-.245.25-.495.5-.495h2c.25 0 .5.25.5.5v3.5a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5" />
-                    </svg>
-                    &nbsp;Home
-                </a>
-            </span>
-        </div>
-        <!--
-        <div class="container d-flex justify-content-between">
-            <a class="my-1 title text-azure text-uppercase" href="https://microsoftlearning.github.io/mslearn-ai-studio">
-                Develop generative AI solutions in Azure
-            </a>
-            <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="btn btn-sm btn-outline-secondary text-light">
-                <i class="fa fa-github" aria-hidden="true"></i>
-                <span class="ml-2">GitHub</span>
-            </a>
-        </div>
-        -->
-    </nav>
-    <hr color-"gray"/>
-    <div class="container">
-        <main class="row extra-padding">
-            <aside class="col-sm-2">       
-                <nav id="linksMenu" class="toc sticky-top">
-                    <ul class="nav navbar-nav flex-column">
-                    </ul>
-                </nav>         
-            </aside>
-            <hr class="" />
-            <article class="col-sm-10 mb-5">
-                <h1 id="prepare-for-an-ai-development-project">Prepare for an AI development project</h1>
 
-<p>In this exercise, you use Microsoft Foundry portal to create a project, ready to build an AI solution.</p>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Exercise 3: Functions, Packages &amp; APIs</title>
+  <style>
+    :root {
+      --blue: #2563eb;
+      --navy: #172554;
+      --ink: #25324a;
+      --muted: #5d6b82;
+      --line: #d9e1ec;
+      --soft: #f5f8fc;
+      --tip: #ecfdf5;
+      --warn: #fff7ed;
+      --hf: #ffbd19;
+      --green: #16a36a
+    }
 
-<p>This exercise takes approximately <strong>30</strong> minutes.</p>
+    * {
+      box-sizing: border-box
+    }
 
-<blockquote>
-  <p><strong>Note</strong>: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.</p>
-</blockquote>
+    body {
+      margin: 0;
+      font: 16px/1.65 "Segoe UI", Arial, sans-serif;
+      color: var(--ink)
+    }
 
-<h2 id="prerequisites">Prerequisites</h2>
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 18px 24px
+    }
 
-<p>Before starting this exercise, ensure you have:</p>
+    header div,
+    main {
+      max-width: 1020px;
+      margin: auto
+    }
 
-<ul>
-  <li>An active <a href="https://azure.microsoft.com/pricing/purchase-options/azure-account">Azure subscription</a></li>
-  <li><a href="https://code.visualstudio.com/">Visual Studio Code</a> installed</li>
-  <li><a href="https://www.python.org/downloads/release/python-31312/">Python version <strong>3.13.xx</strong></a> installed*</li>
-  <li><a href="https://git-scm.com/install/">Git</a> installed and configured</li>
-  <li><a href="https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest">Azure CLI</a> installed</li>
-</ul>
+    header div {
+      font-weight: 650
+    }
 
-<blockquote>
-  <p>* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.</p>
-</blockquote>
+    main {
+      padding: 44px 24px 80px
+    }
 
-<h2 id="create-a-microsoft-foundry-project">Create a Microsoft Foundry project</h2>
+    h1 {
+      font-size: 2.35rem;
+      line-height: 1.15;
+      color: #10214b;
+      margin: 0 0 12px
+    }
 
-<p>Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.</p>
+    h2 {
+      margin-top: 50px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      color: #163a78
+    }
 
-<ol>
-  <li>
-    <p>In a web browser, open the <a href="https://ai.azure.com">Microsoft Foundry portal</a> at <code>https://ai.azure.com</code> and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.</p>
-  </li>
-  <li>If it is not already enabled, in the tool bar the top of the page, enable the <strong>New Foundry</strong> option. Then, create a new project with a unique name; expanding the <strong>Advanced options</strong> area to specify the following settings for your project:
-    <ul>
-      <li><strong>Foundry resource</strong>: <em>Use the default name for your resource (usually {project_name}-resource)</em></li>
-      <li><strong>Subscription</strong>: <em>Your Azure subscription</em></li>
-      <li><strong>Resource group</strong>: <em>Create or select a resource group</em></li>
-      <li><strong>Region</strong>: Select any of the <strong>AI Foundry recommended</strong> regions in <strong target="_blank"><a href="https://learn.microsoft.com/azure/foundry/openai/how-to/responses#region-availability">this list</a></strong></li>
-    </ul>
+    h3 {
+      margin-top: 32px;
+      color: #244a86
+    }
 
-    <blockquote>
-      <p><strong>Tip</strong>: Make a note of the region you selected. You’ll need it later!</p>
-    </blockquote>
-  </li>
-  <li>
-    <p>Select <strong>Create</strong>. Wait for your project to be created.</p>
+    a {
+      color: #075fc8
+    }
 
-    <p>When it is ready, the project home page will open.</p>
+    .lead {
+      font-size: 1.15rem;
+      color: var(--muted)
+    }
 
-    <p><img src="/mslearn-ai-studio/Instructions/media/foundry-portal-home.png" alt="Screenshot of the Foundry project home page." /></p>
-  </li>
-</ol>
+    .meta {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 22px 0 28px
+    }
 
-<h2 id="deploy-and-test-a-model">Deploy and test a model</h2>
+    .pill {
+      background: #eaf2ff;
+      color: #164a96;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-weight: 600
+    }
 
-<p>At the core of any generative AI project, there’s at least one generative AI model.</p>
+    .box {
+      border-left: 5px solid var(--blue);
+      background: var(--soft);
+      padding: 16px 20px;
+      margin: 22px 0
+    }
 
-<ol>
-  <li>
-    <p>Now you’re ready to <strong>Start building</strong>. Select <strong>Find models</strong> (or on the <strong>Discover</strong> page, select the <strong>Models</strong> tab) to view the Microsoft Foundry model catalog.</p>
-  </li>
-  <li>
-    <p>Search for the <code>gpt-4.1</code> model, and then select it in the search results to view its model card.</p>
+    .tip {
+      border-color: var(--green);
+      background: var(--tip)
+    }
 
-    <p>Model cards provide information about models to help you understand their capabilities and limitations, and determine if they are suitable for your requirements.</p>
+    .warn {
+      border-color: #f08c2e;
+      background: var(--warn)
+    }
 
-    <p><img src="/mslearn-ai-studio/Instructions/media/gpt4.1-details.png" alt="Screenshot of the gpt-4.1 model card." /></p>
-  </li>
-  <li>
-    <p>Select <strong>Deploy</strong> with the default settings to create a deployment of the model.</p>
+    .hf {
+      border-color: var(--hf);
+      background: #fffbea
+    }
 
-    <p>Model deployments enable you to work with a model in your project.</p>
+    .code {
+      position: relative;
+      margin: 18px 0 26px
+    }
 
-    <p>When the model has been deployed, the model playground will open automatically so you can test your model:</p>
+    .label {
+      background: #26364d;
+      color: #fff;
+      padding: 7px 12px;
+      border-radius: 7px 7px 0 0;
+      font-size: .85rem
+    }
 
-    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-model-playground.png" alt="Screenshot of the Foundry project model playground." /></p>
-  </li>
-  <li>
-    <p>In the <strong>Instructions</strong> box, enter the following instructions:</p>
+    pre {
+      margin: 0;
+      background: #111827;
+      color: #e7edf6;
+      padding: 18px;
+      overflow: auto;
+      border-radius: 0 0 7px 7px;
+      font: 14px/1.55 Consolas, monospace
+    }
 
-    <pre><code class="language-text"> You are an AI assistant that can provide information and advice about AI software development.
-</code></pre>
-  </li>
-  <li>
-    <p>In the chat window, enter a query such as <code>Describe three key considerations for working with Large Language Models for AI application development.</code> and view the response:</p>
+    code {
+      font-family: Consolas, monospace
+    }
 
-    <p>Hopefully the model provided some key considerations for you to think about!</p>
-  </li>
-</ol>
+    .copy-btn {
+      position: absolute;
+      right: 9px;
+      top: 38px;
+      border: 1px solid #7890ad;
+      background: #fff;
+      color: #17345f;
+      border-radius: 5px;
+      padding: 5px 9px;
+      cursor: pointer;
+      font-size: .8rem
+    }
 
-<h2 id="view-foundry-azure-resource-and-project-endpoints">View Foundry Azure resource and project endpoints</h2>
+    .copy-btn:hover {
+      background: #eaf2ff
+    }
 
-<ol>
-  <li>
-    <p>In the Foundry portal, in the top menu bar, select <strong>Operate</strong>.</p>
+    li {
+      margin: 8px 0
+    }
 
-    <p>The operation center is where you can monitor your projects, view alerts, monitor agent performance and quotas, and manage resources.</p>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0
+    }
 
-    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-operate.png" alt="Screenshot of the Operate center page in Foundry portal." /></p>
-  </li>
-  <li>
-    <p>In the left navigation pane, select the <strong>Admin</strong> page to view details.</p>
+    th,
+    td {
+      border: 1px solid var(--line);
+      padding: 10px;
+      text-align: left;
+      vertical-align: top
+    }
 
-    <ul>
-      <li>The <em>resource</em> level relates to the <strong>Foundry</strong> resource that was created in Azure to support your project. This resource includes connections to Foundry Services and models; and provides a central place to manage user access to AI development projects.</li>
-      <li>The <em>project</em> level relates to your individual project, where you can add and manage project-specific resources. A resource can support multiple projects (the first one created is the resource’s <em>default</em> project).</li>
-    </ul>
+    th {
+      background: #edf3fb
+    }
 
-    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-admin.png" alt="Screenshot of the Admin page in Foundry portal." /></p>
-  </li>
-  <li>
-    <p>Select the link to the <strong>Parent resource</strong> associated with the project.</p>
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 8px;
+      margin: 24px 0
+    }
 
-    <p>The resource configuration details should be displayed.</p>
+    .flow div {
+      background: #edf3fb;
+      border: 1px solid #bfd0e8;
+      border-radius: 7px;
+      padding: 12px 7px;
+      text-align: center;
+      font-weight: 650
+    }
 
-    <p><img src="/mslearn-ai-studio/Instructions/media/ai-foundry-resource.png" alt="Screenshot of a Foundry resource details page." /></p>
+    .summary {
+      background: #eaf2ff;
+      padding: 22px;
+      border-radius: 10px;
+      margin-top: 44px
+    }
 
-    <p>Note that the Foundry resource has an <em>endpoint</em>, through which client applications can access resource-level functionality (such as Foundry Tools that are shared across all projects in the resource).</p>
-  </li>
-  <li>In the top menu bar, select <strong>Home</strong> to return to the project home page.</li>
-  <li>
-    <p>Note the key, project endpoint, and Azure OpenAI endpoint.</p>
+    .step-num {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      font-weight: 700;
+      margin-right: 10px;
+      font-size: .95rem
+    }
 
-    <p>This information is used to connect to your project-level resouces from client applications.</p>
+    @media(max-width:780px) {
+      .flow {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
 
-    <ul>
-      <li>The <em>key</em> is used for key-based authentication to models and tools (though in most production scenarios you should consider using Microsoft Entra ID authentication based on authenticated user and application identities).</li>
-      <li>The <em>project endpoint</em> is used to access models provided directly in Foundry (including OpenAI models) using the OpenAI <strong>Responses</strong> API, and to access Foundry-specific APIs (such as the Foundry Agent service).</li>
-      <li>The <em>OpenAI endpoint</em> is used to access models using OpenAI APIs, including the <strong>Chat Completions</strong> API and the <strong>Responses</strong> API.</li>
-    </ul>
-  </li>
-</ol>
+    @media print {
 
-<h2 id="install-the-foundry-toolkit-extension-for-visual-studio-code">Install the Foundry Toolkit extension for Visual Studio Code</h2>
+      header,
+      .copy-btn {
+        display: none
+      }
 
-<p>As a developer, you may spend some time working in the Foundry portal; but you’re also likely to spend a lot of time in Visual Studio Code. The Foundry Toolkit extension provides a convenient way to work with Foundry project resources without leaving the development environment.</p>
+      main {
+        max-width: none;
+        padding: 0
+      }
 
-<ol>
-  <li>Start Visual Studio Code</li>
-  <li>In the navigation bar on the left, view the <strong>Extensions</strong> page.</li>
-  <li>
-    <p>Search the extensions marketplace for <code>Foundry Toolkit</code>, and install the <strong>Foundry Toolkit for VS Code</strong> extension.</p>
+      .code {
+        break-inside: avoid
+      }
+    }
+  </style>
+</head>
 
-    <p>The extension may take a minute or so to install.</p>
-  </li>
-  <li>
-    <p>After installing the extension, select the <strong>AI Toolkit</strong> page in the left navigation bar; and wait for it to load.</p>
-
-    <p><img src="/mslearn-ai-studio/Instructions/media/foundry-vs-extension.png" alt="Screenshot of the Foundry Toolkit Visual Studio Code extension." /></p>
-  </li>
-  <li>
-    <p>In the Foundry Toolkit pane, expand <strong>Microsoft Foundry Resources</strong> and set the default project by connecting to Azure (signing in with your credentials) and selecting the Foundry project you created previously.</p>
-  </li>
-  <li>
-    <p>After setting the default project, expand the project, expand <strong>Models</strong>, and select the <strong>gpt-4.1</strong> model you deployed previously.</p>
-
-    <p>You can view the model deployment details here.</p>
-
-    <p><img src="/mslearn-ai-studio/Instructions/media/vscode-extension-model.png" alt="Screenshot of a model in the  Foundry Toolkit Visual Studio Code extension." /></p>
-  </li>
-  <li>
-    <p>In the Foundry Toolkit pane, in the <strong>Developer Tools</strong> section, expand <strong>Build</strong> and select <strong>Model playground</strong>. Then select the <strong>gpt-4.1</strong> model (if it is not already selected).</p>
-
-    <p>An interactive playground in which you can test the model is opened in Visual Studio Code.</p>
-
-    <p><img src="/mslearn-ai-studio/Instructions/media/vscode-model-playground.png" alt="Screenshot of the model playground in Visual Studio Code." /></p>
-  </li>
-</ol>
-
-<h2 id="summary">Summary</h2>
-
-<p>In this exercise, you’ve created a Microsoft Foundry and explored it in the Foundry portal. You’ve also explored the  Foundry Toolkit extension in Visual Studio Code, which provides a convenient way for developers to work with Foundry projects and their assets.</p>
-
-<h2 id="clean-up">Clean up</h2>
-
-<p>If you’ve finished exploring Foundry portal, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.</p>
-
-<ol>
-  <li>In the <a href="https://portal.azure.com">Azure portal</a> at <code>https://portal.azure.com</code>, view the contents of the resource group where you deployed the resources used in this exercise.</li>
-  <li>On the toolbar, select <strong>Delete resource group</strong>.</li>
-  <li>Enter the resource group name and confirm that you want to delete it.</li>
-</ol>
-
-            </article>
-        </main>
+<body>
+  <header>
+    <div>Python for Beginners &nbsp; / &nbsp; Exercise 3 of 3</div>
+  </header>
+  <main>
+    <h1>Functions, Packages &amp; APIs</h1>
+    <p class="lead">Write reusable functions, import powerful third-party packages, make real HTTP API calls, parse JSON
+      responses, and explore Python decorators.</p>
+    <div class="meta">
+      <span class="pill">Intermediate</span>
+      <span class="pill">60–75 minutes</span>
+      <span class="pill">Python 3 + pip + VS Code / Terminal</span>
     </div>
-    <footer class="fixed-bottom d-print-none">
-        <nav class="navbar navbar-light bg-light d-flex justify-content-around">
-            <span class="navbar-text">
-                &copy; 2025 Microsoft &nbsp;|&nbsp;
-                  <a href="https://go.microsoft.com/fwlink/?LinkId=521839">Privacy </a>&nbsp;|&nbsp;
-                  <a href="https://go.microsoft.com/fwlink/?LinkId=2259814">Consumer Health Privacy </a>&nbsp;|&nbsp;
-                  <a href="https://go.microsoft.com/fwlink/?LinkID=206977">Terms of Use </a>&nbsp;|&nbsp;
-                  <a href="https://www.microsoft.com/trademarks">Trademarks </a>&nbsp;|&nbsp;
-                <i class="fa fa-github" aria-hidden="true"></i>
-                <a href="https://github.com/MicrosoftLearning/mslearn-ai-studio" target="_blank" class="ml-2">
-                    Source
-                </a>
-            </span>
-        </nav>
-    </footer>
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-    <script src="/mslearn-ai-studio/assets/js/script.js?v=bb2ee0659192e2b709180664179aa949f1110420"></script>
+
+
+    <h2>Learning Objectives</h2>
+    <ul>
+      <li>Define and call a function with <code>def</code> to eliminate code repetition.</li>
+      <li>Pass arguments to functions, return values, and use default parameter values.</li>
+      <li>Import built-in and third-party packages with <code>import</code> and <code>from … import</code>.</li>
+      <li>Install a package using <code>pip</code> and use it in a script.</li>
+      <li>Make an HTTP POST request to a REST API using the <code>requests</code> library.</li>
+      <li>Parse and display a JSON response using the <code>json</code> module.</li>
+      <li>Understand what a Python decorator is and write a simple one using <code>functools.wraps</code>.</li>
+    </ul>
+
+    <h2>The Complete Flow</h2>
+    <div class="flow">
+      <div>Define function</div>
+      <div>Call with args</div>
+      <div>Import packages</div>
+      <div>HTTP request</div>
+      <div>Parse JSON</div>
+      <div>Decorate</div>
+    </div>
+    <p>This exercise brings together everything from the first two exercises. Functions give your code structure;
+      packages give it power; APIs let it talk to the world.</p>
+
+    <h2>Prerequisites</h2>
+    <ul>
+      <li>Completion of <strong>Exercise 1</strong> and <strong>Exercise 2</strong> (or equivalent experience).</li>
+      <li>Python 3.x installed. Run <code>python --version</code> to confirm.</li>
+      <li><code>pip</code> available. Run <code>pip --version</code> to confirm.</li>
+      <li>An internet connection for the API steps.</li>
+    </ul>
+
+    <!-- STEP 1 -->
+    <h2><span class="step-num">1</span>Defining and Calling Functions</h2>
+    <p>A function is a named block of reusable code. Instead of copying the same lines in multiple places, you define
+      the logic once and <em>call</em> it as many times as you need.</p>
+
+    <h3>1a — Why functions? The problem with repeated code</h3>
+    <div class="code">
+      <div class="label">print_time_repeated_code.py — Before functions</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code>import datetime
+
+# Task 1
+print('task completed')
+print(datetime.datetime.now())
+print()
+
+# Task 2 — copy-pasted!
+print('task completed')
+print(datetime.datetime.now())
+print()
+
+# If you need to change the message, you must find and update EVERY copy</code></pre>
+    </div>
+
+    <h3>1b — Refactoring with a function</h3>
+    <div class="code">
+      <div class="label">print_time_function.py</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code>import datetime
+
+# Define the function once
+def print_time():
+    print('task completed')
+    print(datetime.datetime.now())
+    print()
+
+# Call it as many times as needed — change once, updates everywhere
+print_time()
+
+for x in range(0, 10):
+    print(x)
+
+print_time()</code></pre>
+    </div>
+    <div class="box tip"><strong>Rule of thumb (DRY):</strong> "Don't Repeat Yourself." If you write the same code more
+      than twice, put it in a function.</div>
+
+    <h3>1c — Getting initials — building towards a function</h3>
+    <div class="code">
+      <div class="label">get_initials.py — Without a function</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code># Ask for a name and return the initials
+first_name = input('Enter your first name: ')
+first_name_initial = first_name[0:1]          # slice: index 0 up to (not including) 1
+
+middle_name = input('Enter your middle name: ')
+middle_name_initial = middle_name[0:1]
+
+last_name = input('Enter your last name: ')
+last_name_initial = last_name[0:1]
+
+print('Your initials are: ' + first_name_initial + middle_name_initial + last_name_initial)</code></pre>
+    </div>
+
+    <!-- STEP 2 -->
+    <h2><span class="step-num">2</span>Function Parameters &amp; Return Values</h2>
+    <p>Parameters let you pass data <em>into</em> a function. Return values let the function send data <em>back</em> to
+      the caller.</p>
+
+    <h3>2a — A function that takes a parameter and returns a value</h3>
+    <div class="code">
+      <div class="label">get_initials_function.py</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code># Parameters:
+#   name: the full name string to extract the initial from
+# Return value:
+#   the first letter of the name, uppercased
+def get_initial(name):
+    initial = name[0:1].upper()
+    return initial
+
+# Ask for a name and call the function
+first_name = input('Enter your first name: ')
+first_name_initial = get_initial(first_name)
+
+print('Your initial is: ' + first_name_initial)</code></pre>
+    </div>
+
+    <h3>2b — Multiple parameters</h3>
+    <div class="code">
+      <div class="label">get_initials_multiple_parameters.py</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code">def get_initial(name, force_uppercase=True):
+    """Return the first letter of name.
+       If force_uppercase is True (the default), return it in uppercase.
+    """
+    if force_uppercase:
+        return name[0:1].upper()
+    else:
+        return name[0:1]
+
+# Using the default (uppercase = True)
+print(get_initial('susan'))      # S
+
+# Overriding the default
+print(get_initial('susan', force_uppercase=False))   # s</code></pre>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>Syntax</th>
+          <th>What it does</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Parameter</td>
+          <td><code>def fn(param):</code></td>
+          <td>Declares a variable that receives the caller's value</td>
+        </tr>
+        <tr>
+          <td>Argument</td>
+          <td><code>fn('value')</code></td>
+          <td>The actual value passed when calling the function</td>
+        </tr>
+        <tr>
+          <td>Return value</td>
+          <td><code>return result</code></td>
+          <td>Sends a value back to wherever the function was called</td>
+        </tr>
+        <tr>
+          <td>Default value</td>
+          <td><code>def fn(x=True):</code></td>
+          <td>Used when the caller does not supply that argument</td>
+        </tr>
+        <tr>
+          <td>Named argument</td>
+          <td><code>fn(x=False)</code></td>
+          <td>Makes call sites self-documenting</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- STEP 3 -->
+    <h2><span class="step-num">3</span>Using Packages</h2>
+    <p>Python's standard library includes hundreds of modules. Third-party packages (installed with <code>pip</code>)
+      extend Python's capabilities even further.</p>
+
+    <h3>3a — Importing a built-in module</h3>
+    <div class="code">
+      <div class="label">Import styles</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code># Style 1: import the whole module — use datetime.datetime.now()
+import datetime
+print(datetime.datetime.now())
+
+# Style 2: import just the class you need — use datetime.now() directly
+from datetime import datetime
+print(datetime.now())</code></pre>
+    </div>
+
+    <h3>3b — Installing and importing a third-party package</h3>
+    <div class="code">
+      <div class="label">Terminal — Install requests</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code>pip install requests</code></pre>
+    </div>
+    <div class="code">
+      <div class="label">Use the installed package</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code">import requests
+
+response = requests.get('https://httpbin.org/get')
+print(response.status_code)   # 200 means success
+print(response.text)          # raw response body</code></pre>
+    </div>
+    <div class="box tip"><strong>Virtual Environments (best practice):</strong> Before installing packages for a
+      project, create a virtual environment with <code>python -m venv venv</code> and activate it with
+      <code>venv\Scripts\activate</code> (Windows) or <code>source venv/bin/activate</code> (Mac/Linux). This keeps
+      project dependencies isolated.</div>
+
+    <!-- STEP 4 -->
+    <h2><span class="step-num">4</span>Calling a REST API</h2>
+    <p>A REST API is a web service you communicate with over HTTP. You send a request (GET, POST, etc.) and receive a
+      response, usually formatted as JSON.</p>
+
+    <h3>4a — Full API call example (Microsoft Computer Vision)</h3>
+    <div class="code">
+      <div class="label">call_api.py</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code>import requests
+import json
+
+# Replace these with your own Azure Computer Vision credentials
+SUBSCRIPTION_KEY = "YOUR_KEY_HERE"
+vision_service_address = "https://canadacentral.api.cognitive.microsoft.com/vision/v2.0/"
+
+# Build the endpoint URL
+address = vision_service_address + "analyze"
+
+# Optional query parameters
+parameters = {
+    'visualFeatures': 'Description,Color',
+    'language': 'en'
+}
+
+# Open a local image file in binary mode
+image_path = "./TestImages/PolarBear.jpg"
+image_data = open(image_path, "rb").read()
+
+# HTTP headers — tell the API what we're sending and who we are
+headers = {
+    'Content-Type': 'application/octet-stream',
+    'Ocp-Apim-Subscription-Key': SUBSCRIPTION_KEY
+}
+
+# Make the POST request
+response = requests.post(address, headers=headers, params=parameters, data=image_data)
+
+# Raise an exception if the API returned an error code
+response.raise_for_status()
+
+# Parse and display the JSON result
+results = response.json()
+print(json.dumps(results, indent=2))</code></pre>
+    </div>
+    <div class="box warn"><strong>API Key Security:</strong> Never hard-code API keys directly in source files that you
+      commit to version control. Store them in environment variables and read them with
+      <code>os.environ['MY_KEY']</code>.</div>
+
+    <h3>4b — Understanding the HTTP response</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Status Code</th>
+          <th>Meaning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>200</code></td>
+          <td>OK — request succeeded</td>
+        </tr>
+        <tr>
+          <td><code>400</code></td>
+          <td>Bad Request — your request was malformed</td>
+        </tr>
+        <tr>
+          <td><code>401</code></td>
+          <td>Unauthorized — invalid or missing API key</td>
+        </tr>
+        <tr>
+          <td><code>404</code></td>
+          <td>Not Found — the endpoint URL is wrong</td>
+        </tr>
+        <tr>
+          <td><code>500</code></td>
+          <td>Server Error — problem on the API provider's side</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- STEP 5 -->
+    <h2><span class="step-num">5</span>Decorators</h2>
+    <p>A decorator is a function that <em>wraps</em> another function, adding behaviour before or after it runs —
+      without modifying the original function's source code. They are used extensively in frameworks like Flask and
+      Django.</p>
+
+    <h3>5a — Structure of a decorator</h3>
+    <div class="code">
+      <div class="label">Decorator anatomy</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code">import functools
+
+def my_decorator(func):
+    @functools.wraps(func)      # Preserves the original function's metadata
+    def wrapper(*args, **kwargs):
+        print("--- before ---")
+        result = func(*args, **kwargs)  # Call the original function
+        print("--- after ---")
+        return result
+    return wrapper
+
+@my_decorator                   # Apply the decorator with @ syntax
+def greet():
+    print("Hello!")
+
+greet()
+# Output:
+# --- before ---
+# Hello!
+# --- after ---</code></pre>
+    </div>
+
+    <h3>5b — Decorator with a parameter (factory pattern)</h3>
+    <div class="code">
+      <div class="label">creating_decorators.py</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code">import functools
+from colorama import init, Fore
+init()   # Initialise colorama for Windows terminal color support
+
+def color(color_code):
+    """Decorator factory — takes a color and returns a decorator."""
+    def wrapper(func):
+        @functools.wraps(func)
+        def runner(*args, **kwargs):
+            print(color_code + 'Switching to color mode')
+            func(*args, **kwargs)
+        return runner
+    return wrapper
+
+@color(color=Fore.BLUE)         # Apply with the BLUE color code
+def greeter():
+    print('Hello, world!!')
+    print('Just saying hi again')
+
+greeter()</code></pre>
+    </div>
+
+    <div class="box tip">
+      <strong>Install colorama first:</strong>
+      <div class="code" style="margin:10px 0 0">
+        <div class="label">Terminal</div>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <pre><code>pip install colorama</code></pre>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Purpose</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Outer function <code>color(color_code)</code></td>
+          <td>The <strong>factory</strong> — accepts configuration (the color) and returns a decorator</td>
+        </tr>
+        <tr>
+          <td>Middle function <code>wrapper(func)</code></td>
+          <td>The <strong>decorator</strong> — receives the function being decorated</td>
+        </tr>
+        <tr>
+          <td>Inner function <code>runner(*args, **kwargs)</code></td>
+          <td>The <strong>replacement</strong> — runs extra logic, then calls the original function</td>
+        </tr>
+        <tr>
+          <td><code>@functools.wraps(func)</code></td>
+          <td>Copies the original function's name and docstring onto <code>runner</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- CHALLENGE -->
+    <h2>🏆 Coding Challenge</h2>
+    <p>Build a simple public API caller:</p>
+    <ol>
+      <li>Install the <code>requests</code> library if you have not already done so.</li>
+      <li>Write a function <code>get_joke()</code> that calls the public API
+        <code>https://official-joke-api.appspot.com/random_joke</code> (no key needed) and returns the parsed JSON
+        object.</li>
+      <li>Write a decorator called <code>@log_call</code> that prints <code>"Calling function: &lt;name&gt;"</code>
+        before the function runs and <code>"Function finished."</code> after it finishes.</li>
+      <li>Apply <code>@log_call</code> to <code>get_joke()</code>.</li>
+      <li>Call <code>get_joke()</code> and print the joke's <code>setup</code> and <code>punchline</code> fields from
+        the JSON response.</li>
+    </ol>
+    <div class="box tip"><strong>Hints:</strong> Use <code>response.json()</code> to parse the response. Access fields
+      with <code>data['setup']</code> and <code>data['punchline']</code>. Use <code>functools.wraps</code> in your
+      decorator. Handle network errors with <code>try/except requests.RequestException</code>.</div>
+
+    <!-- SUMMARY -->
+    <div class="summary">
+      <h2 style="margin-top:0">Summary &amp; What's Next</h2>
+      <p>In this exercise you completed the Python for Beginners series:</p>
+      <ul>
+        <li><strong>Functions</strong> — define once, call many times; eliminates repeated code (DRY)</li>
+        <li><strong>Parameters &amp; return values</strong> — make functions flexible and composable</li>
+        <li><strong>Default &amp; named parameters</strong> — improve readability at call sites</li>
+        <li><strong>Packages</strong> — import built-in modules and install third-party libraries with <code>pip</code>
+        </li>
+        <li><strong>REST APIs</strong> — use <code>requests</code> to make HTTP calls and handle responses</li>
+        <li><strong>JSON</strong> — parse and format structured data from API responses</li>
+        <li><strong>Decorators</strong> — wrap functions to add cross-cutting concerns cleanly</li>
+      </ul>
+      <p>🎉 <strong>Congratulations!</strong> You have completed all 3 exercises in the Python for Beginners course.
+        Next steps:</p>
+      <ul>
+        <li>Explore <a href="https://docs.python.org/3/" target="_blank" rel="noreferrer">Python's official
+            documentation</a>.</li>
+        <li>Try building a small project: a CLI tool, a web scraper, or a simple Flask web app.</li>
+        <li>Learn about classes and object-oriented programming to take your skills further.</li>
+      </ul>
+    </div>
+  </main>
+
+  <script>
+    function copyCode(btn) {
+      const pre = btn.parentElement.querySelector('pre');
+      navigator.clipboard.writeText(pre.innerText).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 2000);
+      });
+    }
+  </script>
 </body>
 
 </html>
