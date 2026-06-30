@@ -286,6 +286,37 @@
       <li>No prior Python knowledge required — this is the starting point!</li>
     </ul>
 
+    <!-- STEP 0 -->
+    <h2><span class="step-num">0</span>Environment Setup</h2>
+    <p>Before writing code, you need to set up your Python environment.</p>
+
+    <h3>0a — Installing Python</h3>
+    <p>Go to <a href="https://www.python.org/downloads/" target="_blank" rel="noreferrer">python.org/downloads</a> and download the latest version of Python 3. Run the installer and <strong>make sure to check the box "Add python.exe to PATH"</strong> during installation.</p>
+
+    <h3>0b — Running Python Code</h3>
+    <p>To run a Python file, open your terminal (or Command Prompt), navigate to the folder containing your script, and type <code>python</code> followed by the file name.</p>
+    <div class="code">
+      <div class="label">Terminal</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code>python hello_world.py</code></pre>
+    </div>
+
+    <h3>0c — Virtual Environments</h3>
+    <p>A virtual environment is an isolated space where you can install packages for a specific project without affecting other projects or your system-wide Python installation.</p>
+    <div class="code">
+      <div class="label">Terminal — Create and Activate</div>
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      <pre><code># Create a virtual environment named 'venv'
+python -m venv venv
+
+# Activate it (Windows)
+venv\Scripts\activate
+
+# Activate it (Mac/Linux)
+source venv/bin/activate</code></pre>
+    </div>
+    <div class="box tip"><strong>Why use it?</strong> It prevents version conflicts. For example, Project A might need version 1.0 of a library, while Project B needs version 2.0. Virtual environments keep their dependencies separate.</div>
+
     <!-- STEP 1 -->
     <h2><span class="step-num">1</span>Hello World &amp; the Print Statement</h2>
     <p>The <code>print()</code> function is the simplest way to display information. Every Python program starts here.
